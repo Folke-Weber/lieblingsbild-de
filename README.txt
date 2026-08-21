@@ -1,32 +1,34 @@
-LIEBLINGSBILD.DE – V1 STARTSEITE
+LIEBLINGSBILD.DE – V2 BILDBERATER
 
-Enthalten:
-- index.html
-- styles.css
-- script.js
-- assets/hero.jpg
-- assets/pearl.jpg
-- assets/glass.jpg
+Neu in V2:
+- genau 1 Bild auswählen / Drag & Drop
+- Bildanalyse direkt im Browser
+- Hochformat / Querformat / Quadrat erkennen
+- Pixelauflösung prüfen
+- Beschnitt für alle Pearl-Formate berechnen
+- drei optimale Größen empfehlen
+- Hauptempfehlung als „OPTIMAL“ markieren
+- „Alle Größen anzeigen“
+- Qualitätsstufen anhand effektiver ppi
+- Panorama-Erkennung für breite Motive
+- Panorama 20 cm hoch, individuelle Länge aus dem Seitenverhältnis, max. 121 cm
+- Ausschnittvorschau im gewählten Format
+- Bildausschnitt per Maus/Finger verschiebbar
+- Foto wird im V2-Test nicht an einen Server hochgeladen
 
-SEO/KI bereits eingebaut:
-- Title + Meta Description
-- Canonical URL
-- OpenGraph + Twitter Cards
-- semantische H1/H2-Struktur
-- natürliche Keywords für Pearl, Panorama und 3D-Kristallglas
-- regionale Begriffe Haigerloch / Balingen / Hechingen / Albstadt / Horb / Zollernalbkreis
-- Bild-Alt-Texte
-- FAQ-Inhalte
-- schema.org: WebSite, Organization, FAQPage
-- responsive Mobile-Navigation
+Pearl-Formate:
+15×15, 15×20, 15×21, 18×18, 18×24, 18×27,
+20×20, 20×25, 20×28, 20×30, 24×30, 25×38,
+28×35, 30×30, 30×38, 30×40, 30×42, 30×45, 30×50 cm
 
-WICHTIG:
-Die drei Bilddateien sind aktuell nur aus dem freigegebenen Designentwurf ausgeschnittene Platzhalter.
-Vor Livegang sollten sie gegen echte Pearl-Produktfotos und die freigegebenen LOOXIS-Händlerbilder ausgetauscht werden.
+Bewertung:
+- ab 240 ppi: Sehr gut
+- 180–239 ppi: Gut
+- unter 180 ppi: Zu gering
+Die Empfehlungslogik kombiniert Seitenverhältnis/Beschnitt, Bildauflösung und sinnvolle Druckgröße.
 
-Noch offen:
-- echter Bestell-/Upload-Prozess
-- Preise
-- konkrete LOOXIS-Auswahl
-- Impressum / Datenschutz / AGB final verlinken
-- Versand-/Zahlungsseite
+Wichtig:
+- Der „Weiter“-Button zeigt aktuell nur die getroffene Auswahl.
+- Produktpreise, Warenkorb, Bezahlung und finaler Upload zum FotoWorks-Backend kommen danach.
+- HEIC/HEIF ist noch nicht aktiviert, weil Browserunterstützung unterschiedlich ist.
+- Die Produktbilder sind weiterhin die vorläufigen Bilder aus dem Designentwurf.
