@@ -1,34 +1,30 @@
-LIEBLINGSBILD.DE – V2 BILDBERATER
+LIEBLINGSBILD.DE – V3 PREMIUM-BILDBERATER
 
-Neu in V2:
-- genau 1 Bild auswählen / Drag & Drop
-- Bildanalyse direkt im Browser
-- Hochformat / Querformat / Quadrat erkennen
-- Pixelauflösung prüfen
-- Beschnitt für alle Pearl-Formate berechnen
-- drei optimale Größen empfehlen
-- Hauptempfehlung als „OPTIMAL“ markieren
-- „Alle Größen anzeigen“
-- Qualitätsstufen anhand effektiver ppi
-- Panorama-Erkennung für breite Motive
-- Panorama 20 cm hoch, individuelle Länge aus dem Seitenverhältnis, max. 121 cm
-- Ausschnittvorschau im gewählten Format
-- Bildausschnitt per Maus/Finger verschiebbar
-- Foto wird im V2-Test nicht an einen Server hochgeladen
+Neu in V3:
+- nach der optimalen Größenempfehlung zusätzliche Ausrichtungsberatung
+- „Original“, „Hochformat“ und „Querformat“
+- nur technisch sinnvolle Varianten werden aktiv angeboten
+- zu starke Ausschnitte oder zu geringe Auflösung werden automatisch deaktiviert
+- effektive ppi werden jetzt NACH dem tatsächlichen Beschnitt berechnet
+- Ausschnitt bleibt per Maus oder Finger frei verschiebbar
+- die gewählte Ausrichtung wird in der Zusammenfassung gespeichert
 
-Pearl-Formate:
-15×15, 15×20, 15×21, 18×18, 18×24, 18×27,
-20×20, 20×25, 20×28, 20×30, 24×30, 25×38,
-28×35, 30×30, 30×38, 30×40, 30×42, 30×45, 30×50 cm
+Serviceablauf:
+1. genau 1 Lieblingsbild auswählen
+2. Bildformat und Auflösung analysieren
+3. drei optimale Größen empfehlen
+4. optimale Größe auswählen
+5. prüfen: Original / Hochformat / Querformat
+6. nur sinnvolle Varianten anbieten
+7. Ausschnitt selbst festlegen
+8. danach Bestellabschluss
 
-Bewertung:
-- ab 240 ppi: Sehr gut
-- 180–239 ppi: Gut
-- unter 180 ppi: Zu gering
-Die Empfehlungslogik kombiniert Seitenverhältnis/Beschnitt, Bildauflösung und sinnvolle Druckgröße.
+Qualitätslogik:
+- ab 240 effektive ppi: Sehr gut
+- 180–239 effektive ppi: Gut
+- unter 180 effektive ppi: nicht empfohlen
+- bei mehr als ca. 42 % Motivverlust wird die Variante nicht empfohlen
 
-Wichtig:
-- Der „Weiter“-Button zeigt aktuell nur die getroffene Auswahl.
-- Produktpreise, Warenkorb, Bezahlung und finaler Upload zum FotoWorks-Backend kommen danach.
-- HEIC/HEIF ist noch nicht aktiviert, weil Browserunterstützung unterschiedlich ist.
-- Die Produktbilder sind weiterhin die vorläufigen Bilder aus dem Designentwurf.
+Hinweis:
+Der Bestellabschluss, Preise, Warenkorb und der finale Upload zum FotoWorks-Backend
+sind weiterhin noch nicht angebunden.
