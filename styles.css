@@ -673,3 +673,78 @@ button{font:inherit}
   .orientation-choices{grid-template-columns:1fr}
   .orientation-option{min-height:112px}
 }
+
+
+/* ===== V4: Freier Ausschnitt + Live-Qualitätsberater ===== */
+.crop-controls{
+  margin-top:16px;
+  padding:14px 16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+}
+.crop-controls-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.crop-controls-head label{
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:12px;
+  color:var(--gold-soft);
+}
+.crop-controls-head strong{
+  font-size:14px;
+  color:#f1dfbb;
+}
+.zoom-range{
+  width:100%;
+  accent-color:#c79a54;
+}
+.live-advisor{
+  margin:22px 0 18px;
+  padding:16px 18px;
+  border:1px solid rgba(199,154,84,.38);
+  background:rgba(199,154,84,.05);
+}
+.live-advisor strong{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#eed19b;
+}
+.live-advisor p{
+  margin:0;
+  color:#d8d2c8;
+  font-size:14px;
+}
+.live-advisor .advisor-alt{
+  display:block;
+  margin-top:9px;
+  color:#f1e5cd;
+  font-size:13px;
+}
+.live-advisor .advisor-bad{
+  color:#f0c3a8;
+}
+.crop-preview{
+  position:relative;
+}
+.crop-preview img{
+  position:absolute;
+  inset:auto;
+  width:auto;
+  height:auto;
+  max-width:none;
+  max-height:none;
+}
+.orientation-option .orientation-status{
+  min-height:32px;
+}
+@media (max-width:620px){
+  .crop-controls-head{flex-direction:column;align-items:flex-start}
+}

@@ -221,8 +221,8 @@
 
             <div class="recommendation-panel">
               <div id="panoramaHint" class="panorama-hint is-hidden"></div>
-              <h3>Unsere Empfehlung für dein Lieblingsbild</h3>
-              <p class="recommendation-lead">Diese Formate passen besonders gut zu Motiv und Bildqualität.</p>
+              <h3>Wähle deine Wunschgröße</h3>
+              <p class="recommendation-lead">Du entscheidest selbst. Unser Bildberater überwacht danach live die Qualität deines gewählten Ausschnitts.</p>
               <div id="recommendations" class="recommendations"></div>
               <button type="button" class="text-button all-sizes-toggle" id="allSizesBtn">
                 Alle Größen anzeigen
@@ -247,8 +247,8 @@
               <p class="eyebrow gold">Dein Ausschnitt-Service</p>
               <h3>Wie soll dein Lieblingsbild wirken?</h3>
               <p>
-                Wir prüfen automatisch, ob dein Bild neben der optimalen Ausrichtung auch als Hoch- oder Querformat
-                genügend Bildqualität und Motivreserve bietet.
+                Wähle selbst, wie dein Lieblingsbild wirken soll. Danach kannst du den Ausschnitt frei verschieben
+                und sogar näher heranzoomen. Währenddessen prüft unser Bildberater live die Qualität und empfiehlt bei Bedarf eine kleinere Größe.
               </p>
             </div>
             <div id="orientationChoices" class="orientation-choices" aria-label="Ausrichtung auswählen"></div>
@@ -259,6 +259,14 @@
               <div class="crop-preview" id="cropPreview">
                 <img id="cropImage" draggable="false" alt="Ausschnittvorschau des ausgewählten Formats">
               </div>
+              <div class="crop-controls">
+                <div class="crop-controls-head">
+                  <label for="zoomRange">Ausschnitt vergrößern</label>
+                  <strong id="zoomValue">100 %</strong>
+                </div>
+                <input id="zoomRange" class="zoom-range" type="range" min="1" max="4" step="0.01" value="1">
+                <p class="crop-service-note">Bewege das Bild mit Maus oder Finger. Je stärker du hineinzoomst, desto stärker sinkt die nutzbare Bildqualität.</p>
+              </div>
               <div class="crop-quality" id="cropQuality"></div>
             </div>
 
@@ -266,6 +274,7 @@
               <span class="selection-label">Ausgewählt</span>
               <strong id="selectedFormatLabel">–</strong>
               <p id="selectedFormatText"></p>
+              <div id="liveAdvisor" class="live-advisor"></div>
               <button type="button" class="btn btn-primary" id="continueBtn">
                 Mit diesem Format weiter <span>→</span>
               </button>

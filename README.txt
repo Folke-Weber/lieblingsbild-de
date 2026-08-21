@@ -1,30 +1,22 @@
-LIEBLINGSBILD.DE – V3 PREMIUM-BILDBERATER
+LIEBLINGSBILD.DE – V4 FREIER AUSSCHNITT + LIVE-BERATER
 
-Neu in V3:
-- nach der optimalen Größenempfehlung zusätzliche Ausrichtungsberatung
-- „Original“, „Hochformat“ und „Querformat“
-- nur technisch sinnvolle Varianten werden aktiv angeboten
-- zu starke Ausschnitte oder zu geringe Auflösung werden automatisch deaktiviert
-- effektive ppi werden jetzt NACH dem tatsächlichen Beschnitt berechnet
-- Ausschnitt bleibt per Maus oder Finger frei verschiebbar
-- die gewählte Ausrichtung wird in der Zusammenfassung gespeichert
+Neu in V4:
+- der Kunde entscheidet jetzt selbst über die Größe
+- danach entscheidet er selbst über die Ausrichtung
+- Original / Hochformat / Querformat bleiben anwählbar
+- Ausschnitt ist frei verschiebbar
+- zusätzlich gibt es jetzt einen Zoom-Regler
+- je stärker der Kunde hineinzoomt, desto stärker sinkt die effektive Bildqualität
+- der Live-Bildberater reagiert sofort
+- wenn die gewählte Größe für den gewählten Ausschnitt nicht mehr optimal ist,
+  werden automatisch kleinere Alternativen vorgeschlagen
 
-Serviceablauf:
-1. genau 1 Lieblingsbild auswählen
-2. Bildformat und Auflösung analysieren
-3. drei optimale Größen empfehlen
-4. optimale Größe auswählen
-5. prüfen: Original / Hochformat / Querformat
-6. nur sinnvolle Varianten anbieten
-7. Ausschnitt selbst festlegen
-8. danach Bestellabschluss
-
-Qualitätslogik:
-- ab 240 effektive ppi: Sehr gut
-- 180–239 effektive ppi: Gut
-- unter 180 effektive ppi: nicht empfohlen
-- bei mehr als ca. 42 % Motivverlust wird die Variante nicht empfohlen
+Servicegedanke:
+Lieblingsbild.de soll die Beratung von Foto Weber digital abbilden:
+Der Kunde gestaltet sein Lieblingsbild frei, das System begleitet ihn live
+und schützt ihn vor einer zu großen, qualitativ unpassenden Bestellung.
 
 Hinweis:
-Der Bestellabschluss, Preise, Warenkorb und der finale Upload zum FotoWorks-Backend
-sind weiterhin noch nicht angebunden.
+- Der Bestellabschluss / Warenkorb ist weiterhin noch nicht angebunden.
+- Die Live-Empfehlungen sind jetzt direkt an Zoom + gewählten Ausschnitt gekoppelt.
+- assets bleibt unverändert.
