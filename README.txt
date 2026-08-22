@@ -1,32 +1,34 @@
-LIEBLINGSBILD.DE – BILDBERATER V5.2
+LIEBLINGSBILD.DE – BILDBERATER V5.3
 
 NEU:
-- klare Qualitätswarnung bei zu geringer effektiver Auflösung
-- Warnbox kräftig ROT
-- elegante Serifenschrift für die Warnüberschrift
-- PPI-Wert und problematische Größe klar rot hervorgehoben
-- konkrete kleinere Größenempfehlung GRÜN
-- Empfehlung optisch deutlich vom Warnbereich getrennt
+- optionale lokale Funktion „Bild optimieren“
+- Original bleibt Standard
+- Kunde kann jederzeit zwischen Original und Optimiert wechseln
+- Optimierung passiert vollständig im Browser
+- kein externer KI-Dienst
+- keine zusätzlichen Kosten pro Bild
+- Originaldatei wird nicht verändert
 
-LOGIK:
-- ab 240 ppi: sehr gut
-- 180–239 ppi: gut
-- unter 180 ppi: rote Qualitätswarnung
-- kleinere passende Größen werden automatisch gesucht
-- diese Größen werden grün als Empfehlung angezeigt
+OPTIMIERUNG:
+- automatische, dezente Helligkeitsanpassung
+- dezente Kontrastverbesserung
+- dezente Farbsättigungsanpassung
+- Schwarz-Weiß bleibt weiterhin separat optional
+- die Canvas-Vorschau zeigt sofort das Ergebnis
 
 WEITERHIN:
-- Original / Hoch / Quer / Quadrat optional
+- Original / Hochformat / Querformat / Quadrat optional
 - Farbe / Schwarz-Weiß optional
-- Ausschnitt verschiebbar
+- freier Ausschnitt
 - Zoom
-- Canvas-Vorschau
-- Live-ppi-Berechnung
+- Live-PPI
+- rote Qualitätswarnung
+- grüne Größenempfehlung
 
 CACHE:
-- styles.css?v=5.2
-- script.js?v=5.2
-- sichtbare Kennung Bildberater V5.2
+- styles.css?v=5.3
+- script.js?v=5.3
+- sichtbare Kennung Bildberater V5.3
 
 Auf GitHub ersetzen:
 - index.html

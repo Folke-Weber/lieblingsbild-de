@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.2 – Warnsystem rot/grün */
+/* Lieblingsbild.de Bildberater V5.3 – lokale Bildoptimierung */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -48,6 +48,7 @@ const continueBtn = document.getElementById('continueBtn');
 const zoomRange = document.getElementById('zoomRange');
 const zoomValue = document.getElementById('zoomValue');
 const liveAdvisor = document.getElementById('liveAdvisor');
+const optimizeChoices = document.getElementById('optimizeChoices');
 const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
@@ -59,6 +60,8 @@ let selectedSize = null;
 let selectedVariant = null;
 let selectedOrientationKind = 'original';
 let selectedStyle = 'color';
+let selectedOptimization = 'original';
+let enhancementProfile = {brightness:1, contrast:1.04, saturation:1.04};
 let currentVariants = [];
 let zoom = 1;
 let cropCenterX = 0.5;
@@ -497,7 +500,7 @@ function drawCrop(){
   ctx.fillRect(0,0,cropCanvas.width,cropCanvas.height);
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
-  ctx.filter = selectedStyle === 'bw' ? 'grayscale(1)' : 'none';
+  ctx.filter = enhancementFilter();
   ctx.drawImage(
     currentImage.element,
     g.sx,g.sy,g.cropW,g.cropH,
@@ -508,7 +511,7 @@ function drawCrop(){
 
   const ppi=currentEffectivePpi();
   cropQuality.textContent=
-    `Vorschau · ${selectedVariant.label} · ${styleLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
+    `Vorschau · ${selectedVariant.label} · ${styleLabel()} · ${optimizationLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
   renderOrientationStatuses();
 }
 
@@ -589,7 +592,7 @@ function updateSummary(){
   const formatCropPct=Math.round(selectedVariant.loss*100);
 
   selectedFormatText.textContent=
-    `Bildstil: ${styleLabel()}. ` +
+    `Bildstil: ${styleLabel()} · ${optimizationLabel()}. ` +
     `${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+
     (formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+
     `Dein zusätzlicher Zoom wird live mitgerechnet.`;
@@ -609,8 +612,7 @@ function updateSummary(){
         <span>Qualitätswarnung</span>
       </div>
       <p class="advisor-warning-text">
-        Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit
-        <strong>${styleLabel()}</strong> und nur noch rund <strong>${Math.round(ppi)} ppi</strong>
+        Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit <strong>${styleLabel()}</strong> · <strong>${optimizationLabel()}</strong> und nur noch rund <strong>${Math.round(ppi)} ppi</strong>
         nicht mehr optimal.
       </p>
       ${
@@ -634,7 +636,7 @@ function updateSummary(){
     liveAdvisor.innerHTML=`
       <strong>Live-Bildberater</strong>
       <p>Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)}
-      mit ${styleLabel()} und sehr guter Qualität geeignet.</p>
+      mit ${styleLabel()} · ${optimizationLabel()} und sehr guter Qualität geeignet.</p>
       <span class="advisor-alt">Du kannst das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>
     `;
   }else{
@@ -644,7 +646,7 @@ function updateSummary(){
 
     liveAdvisor.innerHTML=`
       <strong>Live-Bildberater</strong>
-      <p>Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()}
+      <p>Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()}
       noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.</p>
       <span class="advisor-alt">${
         recommendation
@@ -654,6 +656,82 @@ function updateSummary(){
     `;
   }
 }
+function analyzeImageForEnhancement(img){
+  const sample = document.createElement('canvas');
+  const maxSide = 180;
+  const ratio = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+  sample.width = Math.max(1, Math.round(img.naturalWidth * ratio));
+  sample.height = Math.max(1, Math.round(img.naturalHeight * ratio));
+
+  const sctx = sample.getContext('2d', {willReadFrequently:true});
+  sctx.drawImage(img, 0, 0, sample.width, sample.height);
+
+  const data = sctx.getImageData(0,0,sample.width,sample.height).data;
+  let lumSum = 0;
+  let satSum = 0;
+  let count = 0;
+
+  for(let i=0;i<data.length;i+=16){
+    const r=data[i], g=data[i+1], b=data[i+2];
+    const lum=0.2126*r+0.7152*g+0.0722*b;
+    lumSum += lum;
+
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    satSum += max===0 ? 0 : (max-min)/max;
+    count++;
+  }
+
+  const avgLum = count ? lumSum/count : 128;
+  const avgSat = count ? satSum/count : 0.35;
+
+  let brightness = 1;
+  if(avgLum < 85) brightness = 1.14;
+  else if(avgLum < 110) brightness = 1.09;
+  else if(avgLum < 135) brightness = 1.05;
+  else if(avgLum > 200) brightness = 0.96;
+  else if(avgLum > 180) brightness = 0.98;
+
+  let contrast = avgLum < 100 ? 1.06 : 1.05;
+  let saturation = avgSat < 0.20 ? 1.10 : avgSat < 0.32 ? 1.07 : 1.04;
+
+  return {
+    brightness: Math.max(.94, Math.min(1.15, brightness)),
+    contrast: Math.max(1, Math.min(1.08, contrast)),
+    saturation: Math.max(1, Math.min(1.10, saturation))
+  };
+}
+
+function enhancementFilter(){
+  const p = enhancementProfile;
+  const gray = selectedStyle === 'bw' ? ' grayscale(1)' : '';
+  if(selectedOptimization !== 'optimized'){
+    return `${gray || 'none'}`.trim();
+  }
+  return `brightness(${p.brightness}) contrast(${p.contrast}) saturate(${p.saturation})${gray}`;
+}
+
+function optimizationLabel(){
+  return selectedOptimization === 'optimized' ? 'Optimiert' : 'Original';
+}
+
+function renderOptimizationChoices(){
+  if(!optimizeChoices) return;
+
+  optimizeChoices.querySelectorAll('.optimize-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.optimize === selectedOptimization);
+  });
+}
+
+optimizeChoices?.addEventListener('click', e => {
+  const btn = e.target.closest('.optimize-option');
+  if(!btn) return;
+
+  selectedOptimization = btn.dataset.optimize || 'original';
+  renderOptimizationChoices();
+  drawCrop();
+  updateSummary();
+});
+
 function handleFile(file){
   if(!file) return;
 
@@ -668,6 +746,9 @@ function handleFile(file){
 
   const img=new Image();
   img.onload=()=>{
+    enhancementProfile = analyzeImageForEnhancement(img);
+    selectedOptimization = 'original';
+    renderOptimizationChoices();
     currentImage={
       width:img.naturalWidth,
       height:img.naturalHeight,
@@ -778,6 +859,7 @@ continueBtn?.addEventListener('click',()=>{
     `Ausgewählt: ${labelFormat(selectedVariant)}\n`+
     `Ausrichtung: ${selectedVariant.label}\n`+
     `Bildstil: ${styleLabel()}\n`+
+    `Bildoptimierung: ${optimizationLabel()}\n`+
     `Zoom: ${Math.round(zoom*100)} %\n`+
     `Effektive Auflösung des sichtbaren Ausschnitts: ${Math.round(ppi)} ppi\n\n`+
     `Der Bestellabschluss wird im nächsten Schritt angebunden.`
