@@ -1,34 +1,32 @@
-LIEBLINGSBILD.DE – BILDBERATER V5.3
+LIEBLINGSBILD.DE – BILDBERATER V5.4
 
 NEU:
-- optionale lokale Funktion „Bild optimieren“
-- Original bleibt Standard
-- Kunde kann jederzeit zwischen Original und Optimiert wechseln
-- Optimierung passiert vollständig im Browser
-- kein externer KI-Dienst
-- keine zusätzlichen Kosten pro Bild
-- Originaldatei wird nicht verändert
+- 90° links drehen
+- 90° rechts drehen
+- Feinneigung von -20° bis +20° in 0,5°-Schritten
+- 0° / Drehung zurücksetzen
+- Vorschau reagiert live
+- Ausschnitt bleibt mit Maus oder Finger verschiebbar
+- Zoom bleibt aktiv
+- Bildqualität wird unter Berücksichtigung der Drehung/Neigung neu berechnet
+- durch Drehung verlorene Bildfläche reduziert die effektiven ppi korrekt
+- bei Qualitätsverlust empfiehlt der Live-Bildberater kleinere Formate
 
-OPTIMIERUNG:
-- automatische, dezente Helligkeitsanpassung
-- dezente Kontrastverbesserung
-- dezente Farbsättigungsanpassung
-- Schwarz-Weiß bleibt weiterhin separat optional
-- die Canvas-Vorschau zeigt sofort das Ergebnis
+SPRACHE:
+- Kundensprache auf der Seite konsequent auf höfliche „Sie / Ihr“-Ansprache umgestellt.
 
 WEITERHIN:
 - Original / Hochformat / Querformat / Quadrat optional
 - Farbe / Schwarz-Weiß optional
-- freier Ausschnitt
-- Zoom
-- Live-PPI
+- Bild optimieren optional, lokal im Browser
 - rote Qualitätswarnung
 - grüne Größenempfehlung
+- Canvas-Ausschnitt
 
 CACHE:
-- styles.css?v=5.3
-- script.js?v=5.3
-- sichtbare Kennung Bildberater V5.3
+- styles.css?v=5.4
+- script.js?v=5.4
+- sichtbare Kennung Bildberater V5.4
 
 Auf GitHub ersetzen:
 - index.html

@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.3 – lokale Bildoptimierung */
+/* Lieblingsbild.de Bildberater V5.4 – Drehen/Neigen + Sie-Ansprache */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -49,6 +49,11 @@ const zoomRange = document.getElementById('zoomRange');
 const zoomValue = document.getElementById('zoomValue');
 const liveAdvisor = document.getElementById('liveAdvisor');
 const optimizeChoices = document.getElementById('optimizeChoices');
+const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+const rotateRightBtn = document.getElementById('rotateRightBtn');
+const rotationResetBtn = document.getElementById('rotationResetBtn');
+const tiltRange = document.getElementById('tiltRange');
+const tiltValue = document.getElementById('tiltValue');
 const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
@@ -61,6 +66,8 @@ let selectedVariant = null;
 let selectedOrientationKind = 'original';
 let selectedStyle = 'color';
 let selectedOptimization = 'original';
+let quarterTurns = 0;
+let tiltDegrees = 0;
 let enhancementProfile = {brightness:1, contrast:1.04, saturation:1.04};
 let currentVariants = [];
 let zoom = 1;
@@ -116,7 +123,7 @@ function renderStyleChoices(){
     {
       key:'color',
       title:'Farbe',
-      meta:'Dein Lieblingsbild wird in seiner natürlichen Farbstimmung gezeigt.',
+      meta:'Ihr Lieblingsbild wird in seiner natürlichen Farbstimmung gezeigt.',
       chip:'Standard'
     },
     {
@@ -244,7 +251,7 @@ function renderAnalysis(img){
     const pano=candidates.find(f=>f.type==='panorama');
     if(pano){
       panoramaHint.classList.remove('is-hidden');
-      panoramaHint.innerHTML=`<strong>Panorama-Tipp:</strong> Dein Bild ist besonders breit. ${labelFormat(pano)} nutzt das Motiv sehr gut aus.`;
+      panoramaHint.innerHTML=`<strong>Panorama-Tipp:</strong> Ihr Bild ist besonders breit. ${labelFormat(pano)} nutzt das Motiv sehr gut aus.`;
     }
   }else{
     panoramaHint.classList.add('is-hidden');
@@ -450,35 +457,27 @@ function cropGeometry(){
 
   const imgW=currentImage.width;
   const imgH=currentImage.height;
-  const targetRatio=selectedVariant.w/selectedVariant.h;
-  const sourceRatio=imgW/imgH;
+  const metrics=rotatedCropMetrics(
+    imgW,imgH,
+    selectedVariant.w,selectedVariant.h,
+    totalRotationDegrees(),
+    zoom
+  );
 
-  let baseW,baseH;
-  if(sourceRatio>targetRatio){
-    baseH=imgH;
-    baseW=imgH*targetRatio;
-  }else{
-    baseW=imgW;
-    baseH=imgW/targetRatio;
-  }
-
-  const cropW=baseW/zoom;
-  const cropH=baseH/zoom;
-
-  const minCX=cropW/(2*imgW);
+  const minCX=metrics.boundW/(2*imgW);
   const maxCX=1-minCX;
-  const minCY=cropH/(2*imgH);
+  const minCY=metrics.boundH/(2*imgH);
   const maxCY=1-minCY;
 
   cropCenterX=Math.max(minCX,Math.min(maxCX,cropCenterX));
   cropCenterY=Math.max(minCY,Math.min(maxCY,cropCenterY));
 
-  const sx=cropCenterX*imgW-cropW/2;
-  const sy=cropCenterY*imgH-cropH/2;
-
-  return {sx,sy,cropW,cropH};
+  return {
+    ...metrics,
+    cx:cropCenterX*imgW,
+    cy:cropCenterY*imgH
+  };
 }
-
 function currentEffectivePpi(){
   const g=lastCrop || cropGeometry();
   if(!g || !selectedVariant) return 0;
@@ -487,7 +486,6 @@ function currentEffectivePpi(){
     g.cropH/(selectedVariant.h/CM_PER_INCH)
   );
 }
-
 function drawCrop(){
   if(!currentImage || !currentImage.element || !selectedVariant) return;
 
@@ -501,20 +499,25 @@ function drawCrop(){
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
   ctx.filter = enhancementFilter();
-  ctx.drawImage(
-    currentImage.element,
-    g.sx,g.sy,g.cropW,g.cropH,
-    0,0,cropCanvas.width,cropCanvas.height
-  );
-  ctx.filter = 'none';
+
+  const scale = cropCanvas.width / g.cropW;
+
+  ctx.translate(cropCanvas.width/2, cropCanvas.height/2);
+  ctx.rotate(g.rad);
+  ctx.scale(scale,scale);
+  ctx.translate(-g.cx,-g.cy);
+  ctx.drawImage(currentImage.element,0,0);
+
+  ctx.filter='none';
   ctx.restore();
 
   const ppi=currentEffectivePpi();
   cropQuality.textContent=
-    `Vorschau · ${selectedVariant.label} · ${styleLabel()} · ${optimizationLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
+    `Vorschau · ${selectedVariant.label} · ${styleLabel()} · ${optimizationLabel()} · `+
+    `${normalizedRotationLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
+
   renderOrientationStatuses();
 }
-
 function renderOrientationStatuses(){
   currentVariants.forEach(v=>{
     const el=orientationChoices.querySelector(`.orientation-option[data-kind="${v.kind}"] .orientation-status`);
@@ -546,6 +549,10 @@ function findSmallerAlternatives(){
       w=short; h=long;
     }else if(kind==='landscape'){
       w=long; h=short;
+    }else if(kind==='square'){
+      const sq=[15,18,20,30].filter(s=>s*s<currentArea).sort((a,b)=>b-a)[0];
+      if(!sq) return;
+      w=sq; h=sq;
     }else{
       const landscape=currentImage.width>=currentImage.height;
       w=landscape?long:short;
@@ -555,12 +562,13 @@ function findSmallerAlternatives(){
     const area=w*h;
     if(area>=currentArea) return;
 
-    // Same zoom factor applied to the crop for a fair "same desired framing" comparison.
-    const basePpi=effectivePpiAfterCrop(currentImage.width,currentImage.height,w,h);
-    const ppi=basePpi/zoom;
+    const metrics=rotatedCropMetrics(
+      currentImage.width,currentImage.height,
+      w,h,totalRotationDegrees(),zoom
+    );
 
-    if(ppi>=MIN_PPI_OK){
-      results.push({w,h,ppi,area});
+    if(metrics.ppi>=MIN_PPI_OK){
+      results.push({w,h,ppi:metrics.ppi,area});
     }
   });
 
@@ -583,7 +591,6 @@ function findSmallerAlternatives(){
   }
   return unique;
 }
-
 function updateSummary(){
   if(!selectedVariant) return;
 
@@ -592,10 +599,10 @@ function updateSummary(){
   const formatCropPct=Math.round(selectedVariant.loss*100);
 
   selectedFormatText.textContent=
-    `Bildstil: ${styleLabel()} · ${optimizationLabel()}. ` +
+    `Bildstil: ${styleLabel()} · ${optimizationLabel()} · Ausrichtung ${normalizedRotationLabel()}. ` +
     `${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+
     (formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+
-    `Dein zusätzlicher Zoom wird live mitgerechnet.`;
+    `Ihr zusätzlicher Zoom wird live mitgerechnet.`;
 
   const alternatives=findSmallerAlternatives();
 
@@ -619,11 +626,11 @@ function updateSummary(){
         recommendation
           ? `<div class="advisor-recommendation">
                <strong>✓ Empfohlen: ${recommendation}</strong>
-               <span>Mit dieser kleineren Größe erhältst du wieder eine deutlich bessere Bildqualität.</span>
+               <span>Mit dieser kleineren Größe erhalten Sie wieder eine deutlich bessere Bildqualität.</span>
              </div>`
           : `<div class="advisor-recommendation">
                <strong>✓ Empfehlung</strong>
-               <span>Bitte weniger stark zoomen oder eine kleinere Größe wählen.</span>
+               <span>Bitte zoomen Sie weniger stark oder wählen Sie eine kleinere Größe.</span>
              </div>`
       }
     `;
@@ -635,9 +642,9 @@ function updateSummary(){
   if(ppi>=PPI_EXCELLENT){
     liveAdvisor.innerHTML=`
       <strong>Live-Bildberater</strong>
-      <p>Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)}
+      <p>Ihr tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)}
       mit ${styleLabel()} · ${optimizationLabel()} und sehr guter Qualität geeignet.</p>
-      <span class="advisor-alt">Du kannst das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>
+      <span class="advisor-alt">Sie können das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>
     `;
   }else{
     const recommendation = alternatives.length
@@ -646,7 +653,7 @@ function updateSummary(){
 
     liveAdvisor.innerHTML=`
       <strong>Live-Bildberater</strong>
-      <p>Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()}
+      <p>Ihr Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()}
       noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.</p>
       <span class="advisor-alt">${
         recommendation
@@ -714,6 +721,58 @@ function optimizationLabel(){
   return selectedOptimization === 'optimized' ? 'Optimiert' : 'Original';
 }
 
+function totalRotationDegrees(){
+  return quarterTurns * 90 + tiltDegrees;
+}
+
+function normalizedRotationLabel(){
+  let deg = totalRotationDegrees() % 360;
+  if(deg > 180) deg -= 360;
+  if(deg <= -180) deg += 360;
+  const rounded = Math.round(deg * 10) / 10;
+  const sign = rounded > 0 ? '+' : '';
+  return `${sign}${String(rounded).replace('.', ',')}°`;
+}
+
+function updateRotationUi(){
+  if(tiltValue){
+    const rounded = Math.round(tiltDegrees * 10) / 10;
+    const sign = rounded > 0 ? '+' : '';
+    tiltValue.textContent = `${sign}${String(rounded).replace('.', ',')}°`;
+  }
+  if(tiltRange) tiltRange.value = String(tiltDegrees);
+}
+
+function rotatedCropMetrics(imgW,imgH,cmW,cmH,angleDeg,zoomFactor=1){
+  const ratio = cmW / cmH;
+  const rad = angleDeg * Math.PI / 180;
+  const c = Math.abs(Math.cos(rad));
+  const s = Math.abs(Math.sin(rad));
+
+  // Maximal axis-aligned output crop that still has full image coverage after rotation.
+  const denomW = c + s / ratio;
+  const denomH = s + c / ratio;
+
+  const maxCropW = Math.min(
+    imgW / Math.max(1e-9, denomW),
+    imgH / Math.max(1e-9, denomH)
+  );
+  const maxCropH = maxCropW / ratio;
+
+  const cropW = maxCropW / zoomFactor;
+  const cropH = maxCropH / zoomFactor;
+
+  const boundW = cropW * c + cropH * s;
+  const boundH = cropW * s + cropH * c;
+
+  const ppi = Math.min(
+    cropW / (cmW / CM_PER_INCH),
+    cropH / (cmH / CM_PER_INCH)
+  );
+
+  return {cropW,cropH,boundW,boundH,ppi,rad,c,s};
+}
+
 function renderOptimizationChoices(){
   if(!optimizeChoices) return;
 
@@ -748,6 +807,9 @@ function handleFile(file){
   img.onload=()=>{
     enhancementProfile = analyzeImageForEnhancement(img);
     selectedOptimization = 'original';
+    quarterTurns = 0;
+    tiltDegrees = 0;
+    updateRotationUi();
     renderOptimizationChoices();
     currentImage={
       width:img.naturalWidth,
@@ -812,7 +874,7 @@ cropCanvas?.addEventListener('pointerdown',e=>{
     centerX:cropCenterX,
     centerY:cropCenterY,
     cropW:lastCrop.cropW,
-    cropH:lastCrop.cropH
+    angleRad:lastCrop.rad
   };
   cropCanvas.setPointerCapture?.(e.pointerId);
   cropCanvas.classList.add('dragging');
@@ -825,12 +887,18 @@ cropCanvas?.addEventListener('pointermove',e=>{
   const dx=e.clientX-dragState.x;
   const dy=e.clientY-dragState.y;
 
-  const sourceDx=(dx/rect.width)*dragState.cropW;
-  const sourceDy=(dy/rect.height)*dragState.cropH;
+  const cssScale=rect.width/dragState.cropW;
+  const u=dx/cssScale;
+  const v=dy/cssScale;
+  const c=Math.cos(dragState.angleRad);
+  const s=Math.sin(dragState.angleRad);
 
-  // Dragging image to the right moves the crop window left in source coordinates.
-  cropCenterX=dragState.centerX-sourceDx/currentImage.width;
-  cropCenterY=dragState.centerY-sourceDy/currentImage.height;
+  // Inverse rotation: dragging the visible image moves the source centre oppositely.
+  const srcDx=c*u+s*v;
+  const srcDy=-s*u+c*v;
+
+  cropCenterX=dragState.centerX-srcDx/currentImage.width;
+  cropCenterY=dragState.centerY-srcDy/currentImage.height;
 
   drawCrop();
 });
@@ -844,6 +912,41 @@ function finishDrag(e){
 }
 cropCanvas?.addEventListener('pointerup',finishDrag);
 cropCanvas?.addEventListener('pointercancel',finishDrag);
+
+
+rotateLeftBtn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+3)%4;
+  cropCenterX=.5;
+  cropCenterY=.5;
+  drawCrop();
+  updateSummary();
+});
+
+rotateRightBtn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+1)%4;
+  cropCenterX=.5;
+  cropCenterY=.5;
+  drawCrop();
+  updateSummary();
+});
+
+rotationResetBtn?.addEventListener('click',()=>{
+  quarterTurns=0;
+  tiltDegrees=0;
+  cropCenterX=.5;
+  cropCenterY=.5;
+  updateRotationUi();
+  drawCrop();
+  updateSummary();
+});
+
+tiltRange?.addEventListener('input',e=>{
+  tiltDegrees=parseFloat(e.target.value||'0');
+  updateRotationUi();
+  drawCrop();
+  updateSummary();
+});
+
 
 window.addEventListener('resize',()=>{
   if(selectedVariant){
@@ -860,6 +963,7 @@ continueBtn?.addEventListener('click',()=>{
     `Ausrichtung: ${selectedVariant.label}\n`+
     `Bildstil: ${styleLabel()}\n`+
     `Bildoptimierung: ${optimizationLabel()}\n`+
+    `Drehung/Neigung: ${normalizedRotationLabel()}\n`+
     `Zoom: ${Math.round(zoom*100)} %\n`+
     `Effektive Auflösung des sichtbaren Ausschnitts: ${Math.round(ppi)} ppi\n\n`+
     `Der Bestellabschluss wird im nächsten Schritt angebunden.`
