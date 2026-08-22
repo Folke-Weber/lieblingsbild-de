@@ -784,3 +784,18 @@ button{font:inherit}
   letter-spacing:.12em;
   text-transform:uppercase;
 }
+
+
+/* ===== V4.2: Crop-Vorschau Fix ===== */
+.crop-preview{
+  min-height:240px;
+}
+.crop-preview img{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  z-index:1;
+}
+.crop-preview::after{
+  z-index:2;
+}

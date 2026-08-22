@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V4.1 – freie Auswahl */
+/* Lieblingsbild.de Bildberater V4.2 – Crop-Vorschau Fix */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -362,13 +362,26 @@ function selectSizeFormat(size, button) {
   panX = 0;
   panY = 0;
 
-  renderOrientationChoices(size, 'original');
+  // IMPORTANT: the crop area must be visible before measuring it.
   cropCard.classList.remove('is-hidden');
+
+  renderOrientationChoices(size, 'original');
+
+  // Recalculate after the browser has laid out the now-visible crop area.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      renderCropPreview();
+      updateSummary();
+    });
+  });
+
   cropCard.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
-
 function applyVariant(variant, button, silent=false) {
   selectedVariant = variant;
+  if (currentImage && cropImage.src !== currentImage.src) {
+    cropImage.src = currentImage.src;
+  }
   selectedOrientationKind = variant.kind;
   panX = 0;
   panY = 0;
@@ -388,9 +401,15 @@ function applyVariant(variant, button, silent=false) {
 function renderCropPreview() {
   if (!currentImage || !selectedVariant) return;
 
+  // If the element was just unhidden, wait until it has real dimensions.
   const rect = cropPreview.getBoundingClientRect();
-  const cw = Math.max(1, rect.width);
-  const ch = Math.max(1, rect.height);
+  if (rect.width < 20 || rect.height < 20) {
+    requestAnimationFrame(() => renderCropPreview());
+    return;
+  }
+
+  const cw = rect.width;
+  const ch = rect.height;
 
   const baseScale = Math.max(cw / currentImage.width, ch / currentImage.height);
   const displayW = currentImage.width * baseScale * zoom;
@@ -614,6 +633,16 @@ cropPreview?.addEventListener('pointerdown', pointerDown);
 cropPreview?.addEventListener('pointermove', pointerMove);
 cropPreview?.addEventListener('pointerup', pointerUp);
 cropPreview?.addEventListener('pointercancel', pointerUp);
+
+cropImage?.addEventListener('load', () => {
+  if (selectedVariant) {
+    requestAnimationFrame(() => {
+      renderCropPreview();
+      updateSummary();
+    });
+  }
+});
+
 
 window.addEventListener('resize', () => {
   if (selectedVariant) renderCropPreview();
