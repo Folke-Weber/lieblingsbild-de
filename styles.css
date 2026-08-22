@@ -1263,3 +1263,47 @@ button{font:inherit}
 @media (max-width:620px){
   .rotation-buttons{grid-template-columns:1fr}
 }
+
+
+/* ===== V5.5: klickbare grüne Größenempfehlung ===== */
+.advisor-recommendation-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:11px;
+}
+
+.advisor-size-button{
+  appearance:none;
+  border:1px solid rgba(79,210,126,.9);
+  background:rgba(26,110,58,.16);
+  color:#72e69d;
+  padding:10px 13px;
+  cursor:pointer;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:16px;
+  line-height:1;
+  transition:.18s ease;
+}
+
+.advisor-size-button:hover,
+.advisor-size-button:focus-visible{
+  background:rgba(45,150,82,.24);
+  border-color:#83f0aa;
+  color:#a1ffc1;
+  transform:translateY(-1px);
+  outline:none;
+}
+
+.advisor-size-button::after{
+  content:" →";
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;
+}
+
+.advisor-recommendation-hint{
+  display:block;
+  margin-top:10px;
+  color:#bcdcc7;
+  font-size:12px;
+}

@@ -1,32 +1,24 @@
-LIEBLINGSBILD.DE – BILDBERATER V5.4
+LIEBLINGSBILD.DE – BILDBERATER V5.5
 
 NEU:
-- 90° links drehen
-- 90° rechts drehen
-- Feinneigung von -20° bis +20° in 0,5°-Schritten
-- 0° / Drehung zurücksetzen
-- Vorschau reagiert live
-- Ausschnitt bleibt mit Maus oder Finger verschiebbar
-- Zoom bleibt aktiv
-- Bildqualität wird unter Berücksichtigung der Drehung/Neigung neu berechnet
-- durch Drehung verlorene Bildfläche reduziert die effektiven ppi korrekt
-- bei Qualitätsverlust empfiehlt der Live-Bildberater kleinere Formate
+- grüne Größenempfehlungen sind jetzt echte Buttons
+- Klick auf z. B. „21 × 15 cm“ wechselt sofort auf dieses Format
+- Ausschnittsposition wird soweit technisch möglich beibehalten
+- Zoom wird beibehalten
+- Drehung / Neigung wird beibehalten
+- Farbe / Schwarz-Weiß wird beibehalten
+- Original / Optimiert wird beibehalten
+- anschließend wird die Qualität sofort neu berechnet
 
-SPRACHE:
-- Kundensprache auf der Seite konsequent auf höfliche „Sie / Ihr“-Ansprache umgestellt.
-
-WEITERHIN:
-- Original / Hochformat / Querformat / Quadrat optional
-- Farbe / Schwarz-Weiß optional
-- Bild optimieren optional, lokal im Browser
-- rote Qualitätswarnung
-- grüne Größenempfehlung
-- Canvas-Ausschnitt
+WARNLOGIK:
+Rot = Qualitätsproblem.
+Grün = konkrete Lösung.
+Der Kunde kann die grüne Lösung nun direkt anklicken.
 
 CACHE:
-- styles.css?v=5.4
-- script.js?v=5.4
-- sichtbare Kennung Bildberater V5.4
+- styles.css?v=5.5
+- script.js?v=5.5
+- sichtbare Kennung Bildberater V5.5
 
 Auf GitHub ersetzen:
 - index.html
