@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Lieblingsbild.de – Bilder, die bleiben.">
   <meta name="twitter:description" content="Hochwertige Lieblingsbilder auf Pearl-Fotopapier oder als 3D-Kristallglas.">
 
-  <link rel="stylesheet" href="styles.css?v=6.0">
+  <link rel="stylesheet" href="styles.css?v=7.0">
 
   <script type="application/ld+json">
   {
@@ -183,7 +183,7 @@
 
 
     <section id="bildberater" class="advisor">
-      <div class="advisor-head"><span class="test-version">Bildberater V6.0</span>
+      <div class="advisor-head"><span class="test-version">Bildberater V7.0 FINAL</span>
         <p class="eyebrow gold">Ihr persönlicher Bildberater</p>
         <h2>Ein Bild. Die passende Größe.</h2>
         <p class="advisor-intro">
@@ -388,11 +388,69 @@
               <button type="button" class="btn btn-primary" id="continueBtn">
                 Mit diesem Format weiter <span>→</span>
               </button>
-              <small>Der Bestellabschluss wird als nächster Schritt angebunden.</small>
+              <small>Sie behalten die Entscheidungsgewalt. Unsere Empfehlung dient ausschließlich Ihrer Orientierung.</small>
             </div>
           </div>
         </div>
-      </div>
+      
+        <div class="final-selection-card is-hidden" id="finalSelectionCard">
+          <div class="final-selection-head">
+            <div>
+              <p class="eyebrow gold">Ihre finale Auswahl</p>
+              <h3>So haben Sie Ihr Lieblingsbild gestaltet.</h3>
+              <p>
+                Prüfen Sie Ihren tatsächlichen Bildausschnitt und alle gewählten Einstellungen noch einmal in Ruhe.
+                Ihre bewusste Entscheidung wird übernommen – auch dann, wenn unser Bildberater eine kleinere Größe empfohlen hat.
+              </p>
+            </div>
+            <button type="button" class="text-button final-edit-top" id="editSelectionBtn">Auswahl ändern</button>
+          </div>
+
+          <div class="final-selection-grid">
+            <div class="final-preview-panel">
+              <span class="final-preview-label">Ihr tatsächlicher Bildausschnitt</span>
+              <div class="final-preview-frame">
+                <img id="finalPreview" alt="Finale Vorschau Ihres gewählten Lieblingsbild-Ausschnitts">
+              </div>
+              <p class="final-preview-note">Diese Vorschau entspricht Ihrem aktuell eingestellten Ausschnitt einschließlich Bildstil, Optimierung, Drehung, Neigung und Zoom.</p>
+            </div>
+
+            <div class="final-summary-panel">
+              <div class="final-summary-title">
+                <span>Ihre Auswahl</span>
+                <strong id="finalHeadline">–</strong>
+              </div>
+
+              <div class="final-facts">
+                <div><span>Format</span><strong id="finalFormat">–</strong></div>
+                <div><span>Ausrichtung</span><strong id="finalOrientation">–</strong></div>
+                <div><span>Bildstil</span><strong id="finalStyle">–</strong></div>
+                <div><span>Bildoptimierung</span><strong id="finalOptimization">–</strong></div>
+                <div><span>Drehung / Neigung</span><strong id="finalRotation">–</strong></div>
+                <div><span>Zoom</span><strong id="finalZoom">–</strong></div>
+                <div class="final-quality-fact"><span>Effektive Qualität</span><strong id="finalQuality">–</strong></div>
+              </div>
+
+              <div class="final-quality-notice" id="finalQualityNotice"></div>
+
+              <div class="final-decision-note">
+                <strong>Sie entscheiden.</strong>
+                <span>Wir beraten und warnen bei Bedarf – eine bewusste Auswahl wird nicht gesperrt.</span>
+              </div>
+
+              <div class="final-actions">
+                <button type="button" class="btn btn-secondary final-edit-button" id="editSelectionBtnBottom">Auswahl ändern</button>
+                <button type="button" class="btn btn-primary" id="finalOrderBtn">Weiter zur Bestellung <span>→</span></button>
+              </div>
+
+              <div class="final-ready is-hidden" id="finalReady">
+                <strong>✓ Ihre Bildgestaltung ist abgeschlossen.</strong>
+                <span>Die Auswahl ist gespeichert und für den nächsten Bestellschritt vorbereitet.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+</div>
     </section>
 
 
@@ -505,6 +563,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=6.0"></script>
+  <script src="script.js?v=7.0"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.7.2 – bewusste Formatentscheidung */
+/* Lieblingsbild.de Bildberater V7.0 FINAL – finale Auswahl / Bestätigung */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -74,6 +74,22 @@ const miniTiltRange = document.getElementById('miniTiltRange');
 const miniTiltValue = document.getElementById('miniTiltValue');
 const miniZoomRange = document.getElementById('miniZoomRange');
 const miniZoomValue = document.getElementById('miniZoomValue');
+
+const finalSelectionCard = document.getElementById('finalSelectionCard');
+const finalPreview = document.getElementById('finalPreview');
+const finalHeadline = document.getElementById('finalHeadline');
+const finalFormat = document.getElementById('finalFormat');
+const finalOrientation = document.getElementById('finalOrientation');
+const finalStyle = document.getElementById('finalStyle');
+const finalOptimization = document.getElementById('finalOptimization');
+const finalRotation = document.getElementById('finalRotation');
+const finalZoom = document.getElementById('finalZoom');
+const finalQuality = document.getElementById('finalQuality');
+const finalQualityNotice = document.getElementById('finalQualityNotice');
+const editSelectionBtn = document.getElementById('editSelectionBtn');
+const editSelectionBtnBottom = document.getElementById('editSelectionBtnBottom');
+const finalOrderBtn = document.getElementById('finalOrderBtn');
+const finalReady = document.getElementById('finalReady');
 const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
@@ -1080,17 +1096,130 @@ window.addEventListener('resize',()=>{
   }
 });
 
+
+function finalSelectionData(){
+  if(!selectedVariant || !currentImage) return null;
+
+  const ppi = currentEffectivePpi();
+  const q = qualityInfo(ppi);
+
+  return {
+    version: 'V7.0 FINAL',
+    format: labelFormat(selectedVariant),
+    orientation: selectedVariant.label,
+    orientationKind: selectedOrientationKind,
+    style: styleLabel(),
+    styleKey: selectedStyle,
+    optimization: optimizationLabel(),
+    optimizationKey: selectedOptimization,
+    rotation: normalizedRotationLabel(),
+    quarterTurns,
+    tiltDegrees,
+    zoom,
+    zoomPercent: Math.round(zoom * 100),
+    effectivePpi: Math.round(ppi),
+    quality: q.label,
+    qualityWarning: ppi < MIN_PPI_OK,
+    qualityExcellent: ppi >= PPI_EXCELLENT,
+    cropCenterX,
+    cropCenterY,
+    sourceWidth: currentImage.naturalWidth,
+    sourceHeight: currentImage.naturalHeight,
+    timestamp: new Date().toISOString()
+  };
+}
+
+function renderFinalQualityNotice(data){
+  if(!finalQualityNotice) return;
+  finalQualityNotice.className = 'final-quality-notice';
+
+  if(data.qualityWarning){
+    finalQualityNotice.classList.add('quality-warning');
+    finalQualityNotice.innerHTML =
+      `<strong>! Bewusste Auswahl trotz Qualitätswarnung</strong>` +
+      `<span>Sie haben sich für <b>${data.format}</b> bei etwa <b>${data.effectivePpi} ppi</b> entschieden. ` +
+      `Unser Bildberater hat auf die geringere Bildqualität hingewiesen – Ihre Entscheidung wird trotzdem übernommen.</span>`;
+    return;
+  }
+
+  if(!data.qualityExcellent){
+    finalQualityNotice.classList.add('quality-good');
+    finalQualityNotice.innerHTML =
+      `<strong>✓ Gute Bildqualität – bewusste Formatwahl</strong>` +
+      `<span>Ihr Ausschnitt liegt bei etwa <b>${data.effectivePpi} ppi</b>. ` +
+      `Eine kleinere Größe könnte noch mehr Qualitätsreserve bieten; Ihre gewählte Größe bleibt selbstverständlich bestehen.</span>`;
+    return;
+  }
+
+  finalQualityNotice.classList.add('quality-excellent');
+  finalQualityNotice.innerHTML =
+    `<strong>✓ Sehr gute Bildqualität</strong>` +
+    `<span>Ihr tatsächlich sichtbarer Ausschnitt erreicht etwa <b>${data.effectivePpi} ppi</b> und ist für die gewählte Größe sehr gut geeignet.</span>`;
+}
+
+function showFinalSelection(){
+  const data = finalSelectionData();
+  if(!data || !finalSelectionCard || !finalPreview) return;
+
+  drawCrop();
+
+  try{
+    finalPreview.src = cropCanvas.toDataURL('image/jpeg', 0.94);
+  }catch(err){
+    finalPreview.src = sourcePreview?.src || '';
+  }
+
+  if(finalHeadline) finalHeadline.textContent = `${data.format} · ${data.orientation}`;
+  if(finalFormat) finalFormat.textContent = data.format;
+  if(finalOrientation) finalOrientation.textContent = data.orientation;
+  if(finalStyle) finalStyle.textContent = data.style;
+  if(finalOptimization) finalOptimization.textContent = data.optimization;
+  if(finalRotation) finalRotation.textContent = data.rotation;
+  if(finalZoom) finalZoom.textContent = `${data.zoomPercent} %`;
+  if(finalQuality) finalQuality.textContent = `${data.effectivePpi} ppi · ${data.quality}`;
+
+  renderFinalQualityNotice(data);
+
+  window.lieblingsbildFinalSelection = data;
+  try{
+    sessionStorage.setItem('lieblingsbildFinalSelection', JSON.stringify(data));
+  }catch(err){}
+
+  finalReady?.classList.add('is-hidden');
+  finalSelectionCard.classList.remove('is-hidden');
+
+  requestAnimationFrame(()=>{
+    finalSelectionCard.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+function returnToSelection(){
+  finalSelectionCard?.classList.add('is-hidden');
+  finalReady?.classList.add('is-hidden');
+  cropCard?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function completeImageAdvisor(){
+  const data = finalSelectionData();
+  if(!data) return;
+
+  window.lieblingsbildFinalSelection = data;
+
+  try{
+    sessionStorage.setItem('lieblingsbildFinalSelection', JSON.stringify(data));
+  }catch(err){}
+
+  window.dispatchEvent(new CustomEvent('lieblingsbild:selection-ready', {detail:data}));
+
+  finalReady?.classList.remove('is-hidden');
+  finalOrderBtn?.setAttribute('aria-pressed','true');
+}
+
 continueBtn?.addEventListener('click',()=>{
   if(!selectedVariant) return;
-  const ppi=currentEffectivePpi();
-  alert(
-    `Ausgewählt: ${labelFormat(selectedVariant)}\n`+
-    `Ausrichtung: ${selectedVariant.label}\n`+
-    `Bildstil: ${styleLabel()}\n`+
-    `Bildoptimierung: ${optimizationLabel()}\n`+
-    `Drehung/Neigung: ${normalizedRotationLabel()}\n`+
-    `Zoom: ${Math.round(zoom*100)} %\n`+
-    `Effektive Auflösung des sichtbaren Ausschnitts: ${Math.round(ppi)} ppi\n\n`+
-    `Der Bestellabschluss wird im nächsten Schritt angebunden.`
-  );
+  showFinalSelection();
 });
+
+editSelectionBtn?.addEventListener('click', returnToSelection);
+editSelectionBtnBottom?.addEventListener('click', returnToSelection);
+finalOrderBtn?.addEventListener('click', completeImageAdvisor);
