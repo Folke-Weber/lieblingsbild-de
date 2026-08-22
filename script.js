@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V4.2 – Crop-Vorschau Fix */
+/* Lieblingsbild.de Bildberater V4.3 – echter Formatrahmen */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -389,12 +389,26 @@ function applyVariant(variant, button, silent=false) {
   document.querySelectorAll('.orientation-option').forEach(el => el.classList.remove('selected'));
   if (button) button.classList.add('selected');
 
+  const cropRatio = variant.w / variant.h;
+  cropPreview.style.setProperty('--crop-ratio', String(cropRatio));
   cropPreview.style.aspectRatio = `${variant.w} / ${variant.h}`;
+
+  if (Math.abs(cropRatio - 1) < 0.04) {
+    cropPreview.dataset.shape = 'square';
+  } else if (cropRatio < 1) {
+    cropPreview.dataset.shape = 'portrait';
+  } else {
+    cropPreview.dataset.shape = 'landscape';
+  }
+
   selectedFormatLabel.textContent = `${labelFormat(variant)} · ${variant.label}`;
   cropTitle.textContent = `${labelFormat(variant)} – ${variant.label} prüfen`;
 
-  renderCropPreview();
-  updateSummary();
+  requestAnimationFrame(() => {
+    renderCropPreview();
+    updateSummary();
+  });
+
   if (!silent) cropCard.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 

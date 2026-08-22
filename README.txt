@@ -1,23 +1,27 @@
-LIEBLINGSBILD.DE – BILDBERATER V4.2
+LIEBLINGSBILD.DE – BILDBERATER V4.3
 
-FEHLERBEHEBUNG:
-- Die Ausschnitt-Vorschau blieb teilweise schwarz.
-- Ursache: Die Vorschau wurde berechnet, solange der Crop-Bereich noch ausgeblendet war.
-- Jetzt wird der Crop-Bereich zuerst sichtbar gemacht.
-- Erst danach werden Breite/Höhe, Bildskalierung, Zoom und Position berechnet.
-- Nach dem Laden des Bildes wird die Vorschau zusätzlich automatisch neu aufgebaut.
-- Bei Browser-/Fenstergrößenänderung bleibt die Neuberechnung aktiv.
+KORREKTUR V4.3:
+- Hochformat wurde zwar ausgewählt, aber die Vorschaufläche blieb optisch quer.
+- Ursache war eine alte CSS-Begrenzung mit voller Breite und max-height.
+- Der Vorschau-Rahmen übernimmt jetzt wirklich das Seitenverhältnis des gewählten Formats.
 
-WEITERHIN:
-- Original, Hochformat und Querformat bleiben frei anklickbar.
-- Ausschnitt frei verschiebbar.
-- Zoom frei einstellbar.
-- Live-Bildqualität und kleinere Größenempfehlungen bleiben aktiv.
+Beispiele:
+- 30 × 45 cm Hochformat -> echter hochkantiger Rahmen
+- 45 × 30 cm Querformat -> echter breiter Rahmen
+- quadratische Formate -> quadratischer Rahmen
+- Panorama -> entsprechend breiter Rahmen
+
+WEITERHIN AKTIV:
+- Original / Hochformat / Querformat frei auswählbar
+- Ausschnitt per Maus oder Finger verschiebbar
+- Zoom-Regler
+- Live-Qualitätsberechnung
+- automatische Empfehlung einer kleineren Größe bei Qualitätsverlust
 
 CACHE:
-- styles.css?v=4.2
-- script.js?v=4.2
-- sichtbare Kennung „Bildberater V4.2“
+- styles.css?v=4.3
+- script.js?v=4.3
+- sichtbare Kennung „Bildberater V4.3“
 
 Auf GitHub ersetzen:
 - index.html

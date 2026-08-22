@@ -799,3 +799,47 @@ button{font:inherit}
 .crop-preview::after{
   z-index:2;
 }
+
+
+/* ===== V4.3: echter Formatrahmen für Hoch / Quer / Quadrat ===== */
+.crop-preview-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.crop-preview{
+  width:min(100%, calc(620px * var(--crop-ratio, 1.5))) !important;
+  max-width:100% !important;
+  max-height:none !important;
+  min-height:0 !important;
+  aspect-ratio:var(--crop-ratio, 1.5) !important;
+  flex:0 0 auto;
+}
+
+.crop-preview[data-shape="portrait"]{
+  width:min(100%, calc(620px * var(--crop-ratio, .667))) !important;
+}
+
+.crop-preview[data-shape="square"]{
+  width:min(100%, 620px) !important;
+}
+
+.crop-preview[data-shape="landscape"]{
+  width:min(100%, 930px) !important;
+}
+
+.crop-controls,
+.crop-quality{
+  width:min(100%, 930px);
+}
+
+@media (max-width:700px){
+  .crop-preview,
+  .crop-preview[data-shape="portrait"],
+  .crop-preview[data-shape="square"],
+  .crop-preview[data-shape="landscape"]{
+    width:100% !important;
+    max-width:100% !important;
+  }
+}
