@@ -1,3 +1,4 @@
+/* Lieblingsbild.de Bildberater V4.1 – freie Auswahl */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -241,66 +242,60 @@ function baseDimensions(f) {
 
 function uniqueOrientationVariants(size) {
   if (!currentImage || !size) return [];
+
   if (size.type === 'panorama') {
-    const loss = cropLossForRatio(currentImage.width/currentImage.height, size.w/size.h);
-    const basePpi = effectivePpiAfterCrop(currentImage.width,currentImage.height,size.w,size.h);
+    const ratio = size.w / size.h;
     return [{
       kind:'panorama',
       label:'Panorama',
       icon:'landscape',
-      w:size.w, h:size.h,
-      ratio:size.w/size.h,
-      loss, basePpi
+      w:size.w,
+      h:size.h,
+      ratio,
+      loss:cropLossForRatio(currentImage.width/currentImage.height, ratio),
+      basePpi:effectivePpiAfterCrop(currentImage.width,currentImage.height,size.w,size.h)
     }];
   }
 
-  const {short, long} = baseDimensions(size);
+  const short = Math.min(size.w, size.h);
+  const long = Math.max(size.w, size.h);
   const sourceLandscape = currentImage.width >= currentImage.height;
-  const base = [
+
+  // IMPORTANT: Always return all three choices.
+  const variants = [
     {
       kind:'original',
       label:'Original',
       icon:'original',
-      w: sourceLandscape || short===long ? long : short,
-      h: sourceLandscape || short===long ? short : long
+      w: sourceLandscape ? long : short,
+      h: sourceLandscape ? short : long
     },
     {
       kind:'portrait',
       label:'Hochformat',
       icon:'portrait',
-      w: short,
-      h: long
+      w:short,
+      h:long
     },
     {
       kind:'landscape',
       label:'Querformat',
       icon:'landscape',
-      w: long,
-      h: short
+      w:long,
+      h:short
     }
   ];
 
-  const seen = new Set();
-  return base.filter(v => {
-    const key = `${v.w}x${v.h}`;
-    if (seen.has(key)) {
-      // preserve original if duplicate; skip later duplicates
-      return v.kind === 'original' && !seen.has(`orig-${key}`);
-    }
-    seen.add(key);
-    if (v.kind === 'original') seen.add(`orig-${key}`);
-    return true;
-  }).map(v => {
+  return variants.map(v => {
     const ratio = v.w / v.h;
     return {
       ...v,
       ratio,
-      loss: cropLossForRatio(currentImage.width/currentImage.height, ratio),
-      basePpi: effectivePpiAfterCrop(currentImage.width,currentImage.height,v.w,v.h)
+      loss:cropLossForRatio(currentImage.width/currentImage.height, ratio),
+      basePpi:effectivePpiAfterCrop(currentImage.width,currentImage.height,v.w,v.h)
     };
   });
 }
-
 function dynamicPpiForVariant(v) {
   return v.basePpi / zoom;
 }
@@ -316,7 +311,7 @@ function orientationStatus(v) {
   if (ppi >= MIN_PPI_OK) {
     return `${q.label} · ${Math.round(ppi)} ppi · ${cropPct <= 1 ? 'kaum Beschnitt' : `ca. ${cropPct}% Beschnitt`}`;
   }
-  return `kritisch · ${Math.round(ppi)} ppi · ${cropPct <= 1 ? 'kaum Beschnitt' : `ca. ${cropPct}% Beschnitt`}`;
+  return `frei wählbar · ${Math.round(ppi)} ppi · ${cropPct <= 1 ? 'kaum Beschnitt' : `ca. ${cropPct}% Beschnitt`}`;
 }
 
 function shapeIconClass(icon) {
@@ -332,7 +327,8 @@ function renderOrientationChoices(size, preserveKind = null) {
   currentVariants.forEach((v, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = `orientation-option ${idx === 0 ? 'recommended' : ''}`;
+    btn.disabled = false;
+    btn.className = `orientation-option customer-choice ${idx === 0 ? 'recommended' : ''}`;
     btn.dataset.kind = v.kind;
     btn.innerHTML = `
       <span>
@@ -348,12 +344,13 @@ function renderOrientationChoices(size, preserveKind = null) {
     orientationChoices.appendChild(btn);
   });
 
-  const wantedKind = preserveKind || selectedOrientationKind || (currentVariants[0] && currentVariants[0].kind);
-  let chosen = currentVariants.find(v => v.kind === wantedKind) || currentVariants[0];
-  let chosenBtn = [...orientationChoices.querySelectorAll('.orientation-option')].find(b => b.dataset.kind === chosen.kind);
-  applyVariant(chosen, chosenBtn, true);
-}
+  const wantedKind = preserveKind || selectedOrientationKind || 'original';
+  const chosen = currentVariants.find(v => v.kind === wantedKind) || currentVariants[0];
+  const chosenBtn = [...orientationChoices.querySelectorAll('.orientation-option')]
+    .find(b => b.dataset.kind === chosen.kind);
 
+  if (chosen) applyVariant(chosen, chosenBtn, true);
+}
 function selectSizeFormat(size, button) {
   selectedSize = size;
   document.querySelectorAll('.format-option').forEach(el => el.classList.remove('selected'));
