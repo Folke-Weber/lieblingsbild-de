@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.7 – Live-Werkzeugleiste + 180° */
+/* Lieblingsbild.de Bildberater V5.7.2 – bewusste Formatentscheidung */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -637,11 +637,43 @@ function applyRecommendedSize(alt){
   cropCard.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
+
+function updateContinueButton(ppi){
+  if(!continueBtn || !selectedVariant) return;
+
+  const format = labelFormat(selectedVariant);
+
+  if(ppi < MIN_PPI_OK){
+    continueBtn.innerHTML = `${format} TROTZ QUALITÄTSWARNUNG VERWENDEN <span>→</span>`;
+    continueBtn.setAttribute(
+      'aria-label',
+      `${format} trotz Qualitätswarnung verwenden`
+    );
+    return;
+  }
+
+  if(ppi < PPI_EXCELLENT){
+    continueBtn.innerHTML = `TROTZDEM ${format} VERWENDEN <span>→</span>`;
+    continueBtn.setAttribute(
+      'aria-label',
+      `Trotz Empfehlung bei ${format} bleiben`
+    );
+    return;
+  }
+
+  continueBtn.innerHTML = `MIT ${format} WEITER <span>→</span>`;
+  continueBtn.setAttribute(
+    'aria-label',
+    `Mit ${format} weiter`
+  );
+}
+
 function updateSummary(){
   if(!selectedVariant) return;
   const ppi=currentEffectivePpi(); const q=qualityInfo(ppi); const formatCropPct=Math.round(selectedVariant.loss*100);
   selectedFormatText.textContent=`Bildstil: ${styleLabel()} · ${optimizationLabel()} · Ausrichtung ${normalizedRotationLabel()}. `+`${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+(formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+`Ihr zusätzlicher Zoom wird live mitgerechnet.`;
   const alternatives=findSmallerAlternatives();
+  updateContinueButton(ppi);
   const renderButtons=()=>alternatives.slice(0,2).map((alt,idx)=>`<button type="button" class="advisor-size-button" data-recommendation-index="${idx}" aria-label="Auf ${labelFormat(alt)} wechseln">${labelFormat(alt)}</button>`).join('');
   const bindButtons=()=>liveAdvisor.querySelectorAll('.advisor-size-button').forEach(btn=>btn.addEventListener('click',()=>{const idx=parseInt(btn.dataset.recommendationIndex||'0',10);const alt=alternatives[idx];if(alt) applyRecommendedSize(alt);}));
   if(ppi<MIN_PPI_OK){liveAdvisor.className='live-advisor warning';liveAdvisor.innerHTML=`<div class="advisor-warning-title"><span class="advisor-warning-symbol">!</span><span>Qualitätswarnung</span></div><p class="advisor-warning-text">Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit <strong>${styleLabel()}</strong> · <strong>${optimizationLabel()}</strong> und nur noch rund <strong>${Math.round(ppi)} ppi</strong> nicht mehr optimal.</p>${alternatives.length?`<div class="advisor-recommendation"><strong>✓ Empfohlen</strong><span>Mit einer kleineren Größe erhalten Sie wieder eine deutlich bessere Bildqualität.</span><div class="advisor-recommendation-buttons">${renderButtons()}</div><span class="advisor-recommendation-hint">Klicken Sie auf Ihre gewünschte Empfehlung – der Bildberater übernimmt das Format sofort.</span></div>`:`<div class="advisor-recommendation"><strong>✓ Empfehlung</strong><span>Bitte zoomen Sie weniger stark oder wählen Sie eine kleinere Größe.</span></div>`}`;bindButtons();return;}
