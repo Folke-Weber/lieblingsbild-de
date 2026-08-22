@@ -38,3 +38,10 @@ GITHUB ERSETZEN
 - README.txt
 
 assets bleibt unverändert.
+
+
+ERGÄNZUNG V7.0 FINAL
+- sichtbare Versionskennung ganz unten im Footer:
+  Lieblingsbild.de · V7.0 FINAL · by JFW · All Rights Reserved
+
+Diese Kennung dient wie bei FotoWorks zur schnellen Kontrolle des live eingesetzten Versionsstands.

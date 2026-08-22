@@ -1751,3 +1751,24 @@ button{font:inherit}
   .final-actions{grid-template-columns:1fr}
   .final-actions .btn{min-height:52px;font-size:12px}
 }
+
+
+/* V7 FINAL – sichtbare Versionskennung wie bei FotoWorks */
+.site-version{
+  margin-top:18px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.06);
+  color:#66615a;
+  font-size:10px;
+  letter-spacing:.045em;
+  text-align:center;
+}
+
+@media (max-width:620px){
+  .site-version{
+    font-size:9.5px;
+    line-height:1.5;
+    padding-left:8px;
+    padding-right:8px;
+  }
+}
