@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Lieblingsbild.de – Bilder, die bleiben.">
   <meta name="twitter:description" content="Hochwertige Lieblingsbilder auf Pearl-Fotopapier oder als 3D-Kristallglas.">
 
-  <link rel="stylesheet" href="styles.css?v=4.3">
+  <link rel="stylesheet" href="styles.css?v=5.0">
 
   <script type="application/ld+json">
   {
@@ -183,7 +183,7 @@
 
 
     <section id="bildberater" class="advisor">
-      <div class="advisor-head"><span class="test-version">Bildberater V4.3</span>
+      <div class="advisor-head"><span class="test-version">Bildberater V5.0</span>
         <p class="eyebrow gold">Dein persönlicher Bildberater</p>
         <h2>Ein Bild. Die passende Größe.</h2>
         <p class="advisor-intro">
@@ -257,8 +257,8 @@
 
           <div class="crop-workspace">
             <div class="crop-preview-wrap">
-              <div class="crop-preview" id="cropPreview">
-                <img id="cropImage" draggable="false" alt="Ausschnittvorschau des ausgewählten Formats">
+              <div class="crop-stage" id="cropStage">
+                <canvas id="cropCanvas" class="crop-canvas" aria-label="Ausschnittvorschau des ausgewählten Formats"></canvas>
               </div>
               <div class="crop-controls">
                 <div class="crop-controls-head">
@@ -396,6 +396,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=4.3"></script>
+  <script src="script.js?v=5.0"></script>
 </body>
 </html>

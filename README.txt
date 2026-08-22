@@ -1,27 +1,27 @@
-LIEBLINGSBILD.DE – BILDBERATER V4.3
+LIEBLINGSBILD.DE – BILDBERATER V5.0
 
-KORREKTUR V4.3:
-- Hochformat wurde zwar ausgewählt, aber die Vorschaufläche blieb optisch quer.
-- Ursache war eine alte CSS-Begrenzung mit voller Breite und max-height.
-- Der Vorschau-Rahmen übernimmt jetzt wirklich das Seitenverhältnis des gewählten Formats.
+WICHTIG:
+V5 ist kein weiterer CSS-Patch. Die Ausschnittvorschau wurde technisch neu gebaut.
 
-Beispiele:
-- 30 × 45 cm Hochformat -> echter hochkantiger Rahmen
-- 45 × 30 cm Querformat -> echter breiter Rahmen
-- quadratische Formate -> quadratischer Rahmen
-- Panorama -> entsprechend breiter Rahmen
+NEU:
+- echte Canvas-Ausschnittvorschau
+- 30 × 45 cm wird wirklich als Hochformat dargestellt
+- 45 × 30 cm wird wirklich als Querformat dargestellt
+- quadratische Formate werden wirklich quadratisch dargestellt
+- Kunde kann das Foto mit Maus oder Finger innerhalb des Formatrahmens verschieben
+- Zoom frei über Regler
+- tatsächlicher sichtbarer Quellbild-Ausschnitt wird berechnet
+- effektive ppi werden aus genau diesem Ausschnitt berechnet
+- Live-Bildberater empfiehlt kleinere Formate, wenn der gewünschte Ausschnitt für die große Größe zu knapp wird
 
-WEITERHIN AKTIV:
-- Original / Hochformat / Querformat frei auswählbar
-- Ausschnitt per Maus oder Finger verschiebbar
-- Zoom-Regler
-- Live-Qualitätsberechnung
-- automatische Empfehlung einer kleineren Größe bei Qualitätsverlust
+KUNDENLOGIK:
+Der Kunde entscheidet. Das System sperrt nichts.
+Das System warnt und berät nur.
 
 CACHE:
-- styles.css?v=4.3
-- script.js?v=4.3
-- sichtbare Kennung „Bildberater V4.3“
+- styles.css?v=5.0
+- script.js?v=5.0
+- sichtbare Kennung Bildberater V5.0
 
 Auf GitHub ersetzen:
 - index.html

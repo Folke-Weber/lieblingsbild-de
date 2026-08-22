@@ -843,3 +843,65 @@ button{font:inherit}
     max-width:100% !important;
   }
 }
+
+
+/* =========================================================
+   V5.0 – CANVAS CROPPER
+   Der Formatrahmen wird jetzt in JavaScript exakt berechnet.
+   Alte .crop-preview-Regeln sind für die neue Vorschau irrelevant.
+   ========================================================= */
+
+.crop-stage{
+  width:100%;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  overflow:visible;
+}
+
+.crop-canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:100%;
+  background:#050606;
+  border:1px solid rgba(199,154,84,.58);
+  box-shadow:0 18px 55px rgba(0,0,0,.24);
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+}
+
+.crop-canvas.dragging{
+  cursor:grabbing;
+}
+
+.crop-canvas[data-shape="portrait"]{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.crop-canvas[data-shape="square"]{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.crop-controls,
+.crop-quality{
+  width:100%;
+}
+
+.canvas-format-note{
+  color:#a9a39a;
+  font-size:12px;
+  margin-top:8px;
+}
+
+@media (max-width:700px){
+  .crop-stage{
+    justify-content:center;
+  }
+  .crop-canvas{
+    max-width:100%;
+  }
+}
