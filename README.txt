@@ -1,22 +1,32 @@
-LIEBLINGSBILD.DE – BILDBERATER V5.1
+LIEBLINGSBILD.DE – BILDBERATER V5.2
 
 NEU:
-- Quadratisch jetzt als optionale Zusatzwahl im Ausschnitt-Service
-- Farbe / Schwarz-Weiß jetzt als optionale Zusatzwahl
-- beides immer bewusst optional, niemals automatisch
-- Schwarz-Weiß wirkt direkt live in der Canvas-Vorschau
-- Qualitätsberechnung bleibt an den tatsächlichen sichtbaren Ausschnitt gekoppelt
-- Live-Bildberater berücksichtigt die gewählte Stilrichtung in der Textausgabe
+- klare Qualitätswarnung bei zu geringer effektiver Auflösung
+- Warnbox kräftig ROT
+- elegante Serifenschrift für die Warnüberschrift
+- PPI-Wert und problematische Größe klar rot hervorgehoben
+- konkrete kleinere Größenempfehlung GRÜN
+- Empfehlung optisch deutlich vom Warnbereich getrennt
 
-Serviceprinzip:
-Wie im Fachgeschäft:
-Der Kunde entscheidet bewusst über Bildwirkung und Stil.
-Das System berät, warnt bei Qualitätsverlust und empfiehlt kleinere Größen.
+LOGIK:
+- ab 240 ppi: sehr gut
+- 180–239 ppi: gut
+- unter 180 ppi: rote Qualitätswarnung
+- kleinere passende Größen werden automatisch gesucht
+- diese Größen werden grün als Empfehlung angezeigt
+
+WEITERHIN:
+- Original / Hoch / Quer / Quadrat optional
+- Farbe / Schwarz-Weiß optional
+- Ausschnitt verschiebbar
+- Zoom
+- Canvas-Vorschau
+- Live-ppi-Berechnung
 
 CACHE:
-- styles.css?v=5.1
-- script.js?v=5.1
-- sichtbare Kennung Bildberater V5.1
+- styles.css?v=5.2
+- script.js?v=5.2
+- sichtbare Kennung Bildberater V5.2
 
 Auf GitHub ersetzen:
 - index.html

@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.1 – Canvas Cropper + optionale Quadrat-/SW-Wahl */
+/* Lieblingsbild.de Bildberater V5.2 – Warnsystem rot/grün */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -596,31 +596,63 @@ function updateSummary(){
 
   const alternatives=findSmallerAlternatives();
 
-  let text,extra,bad=false;
+  if(ppi < MIN_PPI_OK){
+    liveAdvisor.className='live-advisor warning';
+
+    const recommendation = alternatives.length
+      ? alternatives.slice(0,2).map(labelFormat).join(' oder ')
+      : null;
+
+    liveAdvisor.innerHTML=`
+      <div class="advisor-warning-title">
+        <span class="advisor-warning-symbol">!</span>
+        <span>Qualitätswarnung</span>
+      </div>
+      <p class="advisor-warning-text">
+        Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit
+        <strong>${styleLabel()}</strong> und nur noch rund <strong>${Math.round(ppi)} ppi</strong>
+        nicht mehr optimal.
+      </p>
+      ${
+        recommendation
+          ? `<div class="advisor-recommendation">
+               <strong>✓ Empfohlen: ${recommendation}</strong>
+               <span>Mit dieser kleineren Größe erhältst du wieder eine deutlich bessere Bildqualität.</span>
+             </div>`
+          : `<div class="advisor-recommendation">
+               <strong>✓ Empfehlung</strong>
+               <span>Bitte weniger stark zoomen oder eine kleinere Größe wählen.</span>
+             </div>`
+      }
+    `;
+    return;
+  }
+
+  liveAdvisor.className='live-advisor ok';
+
   if(ppi>=PPI_EXCELLENT){
-    text=`Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} und sehr guter Qualität geeignet.`;
-    extra='Du kannst das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.';
-  }else if(ppi>=MIN_PPI_OK){
-    text=`Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.`;
-    extra=alternatives.length
-      ? `Für maximale Qualität empfehlen wir ${alternatives.map(labelFormat).join(' oder ')}.`
-      : 'Bei weiterem Zoom wäre eine kleinere Größe sinnvoll.';
+    liveAdvisor.innerHTML=`
+      <strong>Live-Bildberater</strong>
+      <p>Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)}
+      mit ${styleLabel()} und sehr guter Qualität geeignet.</p>
+      <span class="advisor-alt">Du kannst das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>
+    `;
   }else{
-    bad=true;
-    text=`Für ${labelFormat(selectedVariant)} ist genau dieser Ausschnitt mit ${styleLabel()} und rund ${Math.round(ppi)} ppi nicht mehr optimal.`;
-    extra=alternatives.length
-      ? `Für denselben Bildwunsch empfehlen wir ${alternatives.map(labelFormat).join(' oder ')}.`
-      : 'Bitte weniger stark zoomen oder eine kleinere Größe wählen.';
-  }
+    const recommendation = alternatives.length
+      ? alternatives.slice(0,2).map(labelFormat).join(' oder ')
+      : null;
 
-  if(selectedVariant.kind === 'square'){
-    extra += ' Quadratische Formate wirken besonders ruhig und modern.';
+    liveAdvisor.innerHTML=`
+      <strong>Live-Bildberater</strong>
+      <p>Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()}
+      noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.</p>
+      <span class="advisor-alt">${
+        recommendation
+          ? `Für maximale Qualität empfehlen wir ${recommendation}.`
+          : 'Bei weiterem Zoom wäre eine kleinere Größe sinnvoll.'
+      }</span>
+    `;
   }
-
-  liveAdvisor.innerHTML=`
-    <strong>Live-Bildberater</strong>
-    <p class="${bad?'advisor-bad':''}">${text}</p>
-    <span class="advisor-alt">${extra}</span>`;
 }
 function handleFile(file){
   if(!file) return;
