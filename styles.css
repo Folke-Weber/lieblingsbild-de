@@ -1424,3 +1424,84 @@ button{font:inherit}
     grid-template-columns:1fr;
   }
 }
+
+
+/* ===== V5.7.1: größere untere Knöpfe / mobilefreundlicher ===== */
+.live-tools{
+  padding:16px;
+}
+
+.live-tools-actions{
+  gap:10px;
+}
+
+.live-action-group{
+  gap:8px;
+}
+
+.mini-tool-button{
+  min-height:42px;
+  padding:10px 14px;
+  font-size:12.5px;
+  letter-spacing:.015em;
+}
+
+.live-status-chip{
+  padding:10px 11px;
+}
+
+.live-status-chip small{
+  font-size:8.5px;
+}
+
+.live-status-chip strong{
+  font-size:14px;
+}
+
+.mini-slider-block{
+  padding:11px 12px;
+}
+
+.mini-slider-head label{
+  font-size:10px;
+}
+
+.mini-slider-head strong{
+  font-size:12px;
+}
+
+/* Besonders für Handy */
+@media (max-width:620px){
+  .live-tools{
+    padding:16px 14px;
+  }
+
+  .live-tools-status{
+    gap:9px;
+  }
+
+  .live-action-group{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:0 0 9px;
+  }
+
+  .mini-tool-button{
+    min-height:48px;
+    padding:12px 12px;
+    font-size:13px;
+  }
+
+  .mini-slider-block{
+    padding:12px 12px;
+  }
+
+  .mini-slider-head label{
+    font-size:10px;
+  }
+
+  .mini-slider-head strong{
+    font-size:13px;
+  }
+}
