@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lieblingsbild.de | Pearl-Fotodruck & 3D-Kristallglas</title>
-  <meta name="description" content="Ihr Lieblingsbild hochwertig gefertigt: edler Pearl-Fotodruck, Panorama bis 20 × 121 cm und ausgewählte 3D-Kristallglas-Gravuren. Lieblingsbild.de aus Haigerloch.">
+  <meta name="description" content="Ihr Lieblingsbild hochwertig gefertigt: edler Pearl-Fotodruck, Panorama bis 20 × 121 cm und ausgewählte 3D-Kristallbilder. Lieblingsbild.de.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="theme-color" content="#090909">
   <link rel="canonical" href="https://www.lieblingsbild.de/">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Lieblingsbild.de – Bilder, die bleiben.">
-  <meta property="og:description" content="Pearl-Fotodruck, Panorama und ausgewählte 3D-Kristallglas-Gravuren für besondere Erinnerungen.">
+  <meta property="og:description" content="Pearl-Fotodruck, Panorama und ausgewählte 3D-Kristallbilder für besondere Erinnerungen.">
   <meta property="og:url" content="https://www.lieblingsbild.de/">
   <meta property="og:locale" content="de_DE">
   <meta property="og:image" content="https://www.lieblingsbild.de/assets/hero.jpg">
@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Lieblingsbild.de – Bilder, die bleiben.">
   <meta name="twitter:description" content="Hochwertige Lieblingsbilder auf Pearl-Fotopapier oder als 3D-Kristallglas.">
 
-  <link rel="stylesheet" href="styles.css?v=7.0">
+  <link rel="stylesheet" href="styles.css?v=8.0">
 
   <script type="application/ld+json">
   {
@@ -31,7 +31,7 @@
         "@id": "https://www.lieblingsbild.de/#website",
         "url": "https://www.lieblingsbild.de/",
         "name": "Lieblingsbild.de",
-        "description": "Hochwertige Pearl-Fotodrucke, Panorama-Fotos und ausgewählte 3D-Kristallglas-Gravuren."
+        "description": "Hochwertige Pearl-Fotodrucke, Panorama-Fotos und ausgewählte 3D-Kristallbilder."
       },
       {
         "@type": "Organization",
@@ -183,7 +183,7 @@
 
 
     <section id="bildberater" class="advisor">
-      <div class="advisor-head"><span class="test-version">Bildberater V7.0 FINAL</span>
+      <div class="advisor-head"><span class="test-version">Bildberater V8.0</span>
         <p class="eyebrow gold">Ihr persönlicher Bildberater</p>
         <h2>Ein Bild. Die passende Größe.</h2>
         <p class="advisor-intro">
@@ -330,6 +330,7 @@
                   <span class="live-status-chip"><small>Bildstil</small><strong id="miniStyle">–</strong></span>
                   <span class="live-status-chip"><small>Optimierung</small><strong id="miniOptimization">–</strong></span>
                   <span class="live-status-chip"><small>Qualität</small><strong id="miniQuality">–</strong></span>
+                  <span class="live-status-chip live-price-chip"><small>Preis</small><strong id="miniPrice">–</strong></span>
                 </div>
 
                 <div class="live-tools-actions">
@@ -384,6 +385,11 @@
               <span class="selection-label">Ausgewählt</span>
               <strong id="selectedFormatLabel">–</strong>
               <p id="selectedFormatText"></p>
+              <div class="selected-price-box" id="selectedPriceBox">
+                <span>Ihr Preis</span>
+                <strong id="selectedPrice">–</strong>
+                <small id="selectedPriceNote">Pearl-Fotodruck · Preis pro Bild</small>
+              </div>
               <div id="liveAdvisor" class="live-advisor"></div>
               <button type="button" class="btn btn-primary" id="continueBtn">
                 Mit diesem Format weiter <span>→</span>
@@ -428,6 +434,7 @@
                 <div><span>Bildoptimierung</span><strong id="finalOptimization">–</strong></div>
                 <div><span>Drehung / Neigung</span><strong id="finalRotation">–</strong></div>
                 <div><span>Zoom</span><strong id="finalZoom">–</strong></div>
+                <div><span>Einzelpreis</span><strong id="finalUnitPrice">–</strong></div>
                 <div class="final-quality-fact"><span>Effektive Qualität</span><strong id="finalQuality">–</strong></div>
               </div>
 
@@ -438,18 +445,85 @@
                 <span>Wir beraten und warnen bei Bedarf – eine bewusste Auswahl wird nicht gesperrt.</span>
               </div>
 
+              <div class="quantity-price-row">
+                <div>
+                  <span class="quantity-label">Menge</span>
+                  <div class="quantity-stepper" aria-label="Menge auswählen">
+                    <button type="button" id="qtyMinusBtn" aria-label="Menge verringern">−</button>
+                    <input id="quantityInput" type="number" min="1" max="99" step="1" value="1" inputmode="numeric" aria-label="Menge">
+                    <button type="button" id="qtyPlusBtn" aria-label="Menge erhöhen">+</button>
+                  </div>
+                </div>
+                <div class="line-total">
+                  <span>Gesamt</span>
+                  <strong id="finalLineTotal">–</strong>
+                </div>
+              </div>
+
               <div class="final-actions">
                 <button type="button" class="btn btn-secondary final-edit-button" id="editSelectionBtnBottom">Auswahl ändern</button>
-                <button type="button" class="btn btn-primary" id="finalOrderBtn">Weiter zur Bestellung <span>→</span></button>
+                <button type="button" class="btn btn-primary" id="finalOrderBtn">In den Warenkorb <span>→</span></button>
               </div>
 
               <div class="final-ready is-hidden" id="finalReady">
-                <strong>✓ Ihre Bildgestaltung ist abgeschlossen.</strong>
-                <span>Die Auswahl ist gespeichert und für den nächsten Bestellschritt vorbereitet.</span>
+                <strong>✓ Ihr Lieblingsbild liegt im Warenkorb.</strong>
+                <span>Sie können den Warenkorb jetzt prüfen oder Ihre Auswahl noch einmal ändern.</span>
               </div>
             </div>
           </div>
         </div>
+
+        <div class="cart-card is-hidden" id="cartCard">
+          <div class="cart-head">
+            <div>
+              <p class="eyebrow gold">Warenkorb</p>
+              <h3>Ihr Lieblingsbild ist vorbereitet.</h3>
+              <p>Prüfen Sie Bildgestaltung, Format, Menge und Preis noch einmal in Ruhe.</p>
+            </div>
+            <span class="cart-count" id="cartCount">1 Artikel</span>
+          </div>
+
+          <div class="cart-item">
+            <div class="cart-thumb-frame"><img id="cartPreview" alt="Vorschau des Lieblingsbildes im Warenkorb"></div>
+            <div class="cart-item-info">
+              <span class="cart-product">Pearl-Fotodruck</span>
+              <strong id="cartFormat">–</strong>
+              <small id="cartDetails">–</small>
+              <button type="button" class="text-button" id="cartEditBtn">Bildgestaltung ändern</button>
+            </div>
+            <div class="cart-qty-block">
+              <span>Menge</span>
+              <div class="quantity-stepper cart-stepper">
+                <button type="button" id="cartQtyMinusBtn" aria-label="Warenkorb-Menge verringern">−</button>
+                <input id="cartQuantityInput" type="number" min="1" max="99" step="1" value="1" inputmode="numeric" aria-label="Warenkorb-Menge">
+                <button type="button" id="cartQtyPlusBtn" aria-label="Warenkorb-Menge erhöhen">+</button>
+              </div>
+            </div>
+            <div class="cart-price-block">
+              <span>Einzelpreis</span>
+              <strong id="cartUnitPrice">–</strong>
+              <small id="cartLineTotal">–</small>
+            </div>
+          </div>
+
+          <div class="cart-change-summary">
+            <span class="cart-summary-kicker">Ihre Bildgestaltung</span>
+            <p id="cartChangeSummary">–</p>
+            <div id="cartQualityDecision" class="cart-quality-decision"></div>
+          </div>
+
+          <div class="cart-bottom">
+            <button type="button" class="cart-remove" id="cartRemoveBtn">Aus Warenkorb entfernen</button>
+            <div class="cart-total"><span>Warenkorb gesamt</span><strong id="cartTotal">–</strong></div>
+          </div>
+
+          <div class="cart-checkout">
+            <p>Ihre Bildgestaltung und Preisauswahl sind gespeichert. Kundendaten, Versand und Zahlung werden im nächsten öffentlichen Bestellschritt ergänzt.</p>
+            <button type="button" class="btn btn-primary" id="cartContinueBtn">Bestellung vorbereiten <span>→</span></button>
+          </div>
+          <div class="cart-ready is-hidden" id="cartReady"><strong>✓ Warenkorb geprüft.</strong><span>Ihre Auswahl ist für den nächsten Bestellschritt gespeichert.</span></div>
+        </div>
+
 </div>
     </section>
 
@@ -486,7 +560,8 @@
         20×28 · 20×30 · 24×30 · 25×38 · 28×35 · 30×30 · 30×38 · 30×40 ·
         30×42 · 30×45 · 30×50 cm
       </p>
-      <p class="format-note"><strong>Panorama:</strong> 20 cm hoch × individuelle Länge bis 121 cm.</p>
+      <p class="format-price-note"><strong>Pearl-Fotodruck:</strong> ab 4,95 € pro Bild.</p>
+      <p class="format-note"><strong>Panorama:</strong> 20 cm hoch × individuelle Länge bis 121 cm. Der Panorama-Preis wird separat nach Länge hinterlegt.</p>
     </section>
 
     <section id="glas-auswahl" class="glass-selection">
@@ -559,15 +634,15 @@
     </div>
 
     <div class="local-copy">
-      <p><strong>Lieblingsbild.de aus Haigerloch</strong> steht für hochwertigen Pearl-Fotodruck, Panorama-Fotos und ausgewählte 3D-Kristallglas-Gravuren – für Kundinnen und Kunden in Haigerloch, Balingen, Hechingen, Albstadt, Horb, dem Zollernalbkreis und deutschlandweit.</p>
+      <p><strong>Lieblingsbild.de</strong> steht für hochwertigen Pearl-Fotodruck, Panorama-Fotos und ausgewählte 3D-Kristallbilder – für Kundinnen und Kunden in Balingen, Hechingen, Albstadt, Horb, Sulz, Rottweil, Villingen-Schwenningen, Herrenberg, Nagold, Freudenstadt, Sigmaringen, im Zollernalbkreis und deutschlandweit.</p>
     </div>
   
       <div class="site-version">
-        Lieblingsbild.de · V7.0 FINAL · by JFW FotoWorks · All Rights Reserved
+        Lieblingsbild.de · V8.0 · by JFW FotoWorks · All Rights Reserved
       </div>
 
     </footer>
 
-  <script src="script.js?v=7.0"></script>
+  <script src="script.js?v=8.0"></script>
 </body>
 </html>

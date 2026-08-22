@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V7.0 FINAL – finale Auswahl / Bestätigung */
+/* Lieblingsbild.de Bildberater V8.0 – Pearl-Preise + Warenkorb */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -21,6 +21,15 @@ const STANDARD_FORMATS = [
   [20,20],[20,25],[20,28],[20,30],[24,30],[25,38],
   [28,35],[30,30],[30,38],[30,40],[30,42],[30,45],[30,50]
 ].map(([w,h]) => ({w,h,type:'pearl'}));
+
+const PEARL_PRICES = Object.freeze({
+  '15x15':4.95,'15x20':5.95,'15x21':5.95,
+  '18x18':7.95,'18x24':7.95,'18x27':7.95,'20x20':7.95,'20x25':7.95,
+  '20x28':9.95,'20x30':9.95,
+  '24x30':12.95,'25x38':12.95,'28x35':12.95,'30x30':12.95,
+  '30x38':14.95,'30x40':14.95,'30x42':14.95,'30x45':14.95,
+  '30x50':17.95
+});
 
 const CM_PER_INCH = 2.54;
 const MIN_PPI_OK = 180;
@@ -61,6 +70,9 @@ const miniOrientation = document.getElementById('miniOrientation');
 const miniStyle = document.getElementById('miniStyle');
 const miniOptimization = document.getElementById('miniOptimization');
 const miniQuality = document.getElementById('miniQuality');
+const miniPrice = document.getElementById('miniPrice');
+const selectedPrice = document.getElementById('selectedPrice');
+const selectedPriceNote = document.getElementById('selectedPriceNote');
 
 const miniRotateLeftBtn = document.getElementById('miniRotateLeftBtn');
 const miniRotate180Btn = document.getElementById('miniRotate180Btn');
@@ -85,11 +97,33 @@ const finalOptimization = document.getElementById('finalOptimization');
 const finalRotation = document.getElementById('finalRotation');
 const finalZoom = document.getElementById('finalZoom');
 const finalQuality = document.getElementById('finalQuality');
+const finalUnitPrice = document.getElementById('finalUnitPrice');
+const finalLineTotal = document.getElementById('finalLineTotal');
+const quantityInput = document.getElementById('quantityInput');
+const qtyMinusBtn = document.getElementById('qtyMinusBtn');
+const qtyPlusBtn = document.getElementById('qtyPlusBtn');
 const finalQualityNotice = document.getElementById('finalQualityNotice');
 const editSelectionBtn = document.getElementById('editSelectionBtn');
 const editSelectionBtnBottom = document.getElementById('editSelectionBtnBottom');
 const finalOrderBtn = document.getElementById('finalOrderBtn');
 const finalReady = document.getElementById('finalReady');
+const cartCard = document.getElementById('cartCard');
+const cartCount = document.getElementById('cartCount');
+const cartPreview = document.getElementById('cartPreview');
+const cartFormat = document.getElementById('cartFormat');
+const cartDetails = document.getElementById('cartDetails');
+const cartChangeSummary = document.getElementById('cartChangeSummary');
+const cartQualityDecision = document.getElementById('cartQualityDecision');
+const cartEditBtn = document.getElementById('cartEditBtn');
+const cartQuantityInput = document.getElementById('cartQuantityInput');
+const cartQtyMinusBtn = document.getElementById('cartQtyMinusBtn');
+const cartQtyPlusBtn = document.getElementById('cartQtyPlusBtn');
+const cartUnitPrice = document.getElementById('cartUnitPrice');
+const cartLineTotal = document.getElementById('cartLineTotal');
+const cartTotal = document.getElementById('cartTotal');
+const cartRemoveBtn = document.getElementById('cartRemoveBtn');
+const cartContinueBtn = document.getElementById('cartContinueBtn');
+const cartReady = document.getElementById('cartReady');
 const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
@@ -111,6 +145,9 @@ let cropCenterX = 0.5;
 let cropCenterY = 0.5;
 let dragState = null;
 let lastCrop = null;
+let selectedQuantity = 1;
+let cartItem = null;
+let finalPreviewDataUrl = '';
 
 function orientationLabel(w,h){
   const r=w/h;
@@ -145,6 +182,46 @@ function qualityInfo(ppi){
 
 function labelFormat(f){
   return `${String(f.w).replace('.',',')} × ${String(f.h).replace('.',',')} cm`;
+}
+
+function canonicalFormatKey(f){
+  if(!f || f.type==='panorama') return null;
+  const a=Math.min(Number(f.w),Number(f.h));
+  const b=Math.max(Number(f.w),Number(f.h));
+  return `${a}x${b}`;
+}
+function priceForFormat(f){
+  const key=canonicalFormatKey(f);
+  return key ? (PEARL_PRICES[key] ?? null) : null;
+}
+function formatEuro(value){
+  if(value===null || value===undefined || Number.isNaN(Number(value))) return 'Preis folgt';
+  return Number(value).toLocaleString('de-DE',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function clampQuantity(value){
+  const q=Math.round(Number(value)||1);
+  return Math.max(1,Math.min(99,q));
+}
+function currentUnitPrice(){ return priceForFormat(selectedVariant || selectedSize); }
+function currentLineTotal(){ const u=currentUnitPrice(); return u===null?null:u*selectedQuantity; }
+function updatePriceDisplays(){
+  const unit=currentUnitPrice(); const priced=unit!==null;
+  if(miniPrice) miniPrice.textContent=priced?formatEuro(unit):'nach Länge';
+  if(selectedPrice) selectedPrice.textContent=priced?formatEuro(unit):'Preis nach Länge';
+  if(selectedPriceNote) selectedPriceNote.textContent=priced?'Pearl-Fotodruck · Preis pro Bild':'Panorama · Preis wird separat nach Länge hinterlegt';
+  if(finalUnitPrice) finalUnitPrice.textContent=priced?formatEuro(unit):'Preis nach Länge';
+  if(finalLineTotal) finalLineTotal.textContent=priced?formatEuro(unit*selectedQuantity):'Preis nach Länge';
+  if(quantityInput && Number(quantityInput.value)!==selectedQuantity) quantityInput.value=String(selectedQuantity);
+  if(finalOrderBtn){
+    finalOrderBtn.disabled=!priced;
+    finalOrderBtn.classList.toggle('is-disabled',!priced);
+    finalOrderBtn.innerHTML=priced?'In den Warenkorb <span>→</span>':'Panorama-Preis noch nicht hinterlegt';
+  }
+}
+function setSelectedQuantity(value){
+  selectedQuantity=clampQuantity(value);
+  if(quantityInput) quantityInput.value=String(selectedQuantity);
+  updatePriceDisplays();
 }
 
 function styleLabel(){
@@ -258,11 +335,13 @@ function makeFormatButton(f,index,container){
   const btn=document.createElement('button');
   btn.type='button';
   btn.className=`format-option ${index===0 && container===recommendationsEl ? 'optimal':''}`;
+  const unitPrice=priceForFormat(f);
   btn.innerHTML=`
     <span class="format-main">
       <strong>${labelFormat(f)}</strong>
       <small>${recommendationReason(f)}</small>
     </span>
+    <span class="format-price">${unitPrice===null?'Preis nach Länge':formatEuro(unitPrice)}</span>
     <span class="quality-badge ${q.cls}">${q.label}</span>`;
   btn.addEventListener('click',()=>selectSizeFormat(f,btn));
   return btn;
@@ -807,6 +886,7 @@ function updateMiniToolbar(){
   miniBwBtn?.classList.toggle('active', selectedStyle === 'bw');
   miniOriginalBtn?.classList.toggle('active', selectedOptimization === 'original');
   miniOptimizedBtn?.classList.toggle('active', selectedOptimization === 'optimized');
+  updatePriceDisplays();
 }
 
 function rotatedCropMetrics(imgW,imgH,cmW,cmH,angleDeg,zoomFactor=1){
@@ -859,6 +939,10 @@ optimizeChoices?.addEventListener('click', e => {
 
 function handleFile(file){
   if(!file) return;
+  selectedQuantity=1;
+  cartItem=null;
+  cartCard?.classList.add('is-hidden');
+  finalReady?.classList.add('is-hidden');
 
   const accepted=['image/jpeg','image/png','image/webp'];
   if(!accepted.includes(file.type)){
@@ -1104,7 +1188,7 @@ function finalSelectionData(){
   const q = qualityInfo(ppi);
 
   return {
-    version: 'V7.0 FINAL',
+    version: 'V8.0',
     format: labelFormat(selectedVariant),
     orientation: selectedVariant.label,
     orientationKind: selectedOrientationKind,
@@ -1125,6 +1209,10 @@ function finalSelectionData(){
     cropCenterY,
     sourceWidth: currentImage.naturalWidth,
     sourceHeight: currentImage.naturalHeight,
+    quantity:selectedQuantity,
+    unitPrice:currentUnitPrice(),
+    lineTotal:currentLineTotal(),
+    currency:'EUR',
     timestamp: new Date().toISOString()
   };
 }
@@ -1164,9 +1252,11 @@ function showFinalSelection(){
   drawCrop();
 
   try{
-    finalPreview.src = cropCanvas.toDataURL('image/jpeg', 0.94);
+    finalPreviewDataUrl = cropCanvas.toDataURL('image/jpeg', 0.94);
+    finalPreview.src = finalPreviewDataUrl;
   }catch(err){
-    finalPreview.src = sourcePreview?.src || '';
+    finalPreviewDataUrl = sourcePreview?.src || '';
+    finalPreview.src = finalPreviewDataUrl;
   }
 
   if(finalHeadline) finalHeadline.textContent = `${data.format} · ${data.orientation}`;
@@ -1177,6 +1267,8 @@ function showFinalSelection(){
   if(finalRotation) finalRotation.textContent = data.rotation;
   if(finalZoom) finalZoom.textContent = `${data.zoomPercent} %`;
   if(finalQuality) finalQuality.textContent = `${data.effectivePpi} ppi · ${data.quality}`;
+  if(finalUnitPrice) finalUnitPrice.textContent=data.unitPrice===null?'Preis nach Länge':formatEuro(data.unitPrice);
+  updatePriceDisplays();
 
   renderFinalQualityNotice(data);
 
@@ -1199,20 +1291,78 @@ function returnToSelection(){
   cropCard?.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-function completeImageAdvisor(){
-  const data = finalSelectionData();
-  if(!data) return;
+function buildChangeSummary(data){
+  const parts=[];
+  parts.push(`Ausrichtung: ${data.orientation}`);
+  parts.push(`Bildstil: ${data.style}`);
+  parts.push(`Bildoptimierung: ${data.optimization}`);
+  if(data.zoomPercent!==100) parts.push(`Zoom: ${data.zoomPercent} %`);
+  else parts.push('Zoom: 100 %');
+  if(data.rotation!=='0°') parts.push(`Drehung / Neigung: ${data.rotation}`);
+  else parts.push('Drehung / Neigung: keine');
+  parts.push(`Qualität: ${data.effectivePpi} ppi · ${data.quality}`);
+  return parts.join(' · ');
+}
 
-  window.lieblingsbildFinalSelection = data;
+function renderCartQualityDecision(data){
+  if(!cartQualityDecision) return;
+  cartQualityDecision.className='cart-quality-decision';
+  if(data.qualityWarning){
+    cartQualityDecision.classList.add('warning');
+    cartQualityDecision.textContent='Bewusste Entscheidung: Sie verwenden dieses Format trotz Qualitätswarnung.';
+  }else if(!data.qualityExcellent){
+    cartQualityDecision.classList.add('advice');
+    cartQualityDecision.textContent='Hinweis: Eine kleinere Größe hätte noch mehr Qualitätsreserve. Ihre gewählte Größe bleibt bestehen.';
+  }else{
+    cartQualityDecision.classList.add('excellent');
+    cartQualityDecision.textContent='Sehr gute Bildqualität für Ihre gewählte Größe.';
+  }
+}
 
-  try{
-    sessionStorage.setItem('lieblingsbildFinalSelection', JSON.stringify(data));
-  }catch(err){}
-
-  window.dispatchEvent(new CustomEvent('lieblingsbild:selection-ready', {detail:data}));
-
-  finalReady?.classList.remove('is-hidden');
-  finalOrderBtn?.setAttribute('aria-pressed','true');
+function renderCart(){
+  if(!cartItem || !cartCard) return;
+  const q=clampQuantity(cartItem.quantity); cartItem.quantity=q;
+  const line=cartItem.unitPrice*q;
+  if(cartPreview) cartPreview.src=cartItem.previewDataUrl||finalPreviewDataUrl||'';
+  if(cartFormat) cartFormat.textContent=cartItem.format;
+  if(cartDetails) cartDetails.textContent=`${cartItem.orientation} · ${cartItem.style} · ${cartItem.optimization} · ${cartItem.effectivePpi} ppi`;
+  if(cartChangeSummary) cartChangeSummary.textContent=buildChangeSummary(cartItem);
+  renderCartQualityDecision(cartItem);
+  if(cartQuantityInput) cartQuantityInput.value=String(q);
+  if(cartUnitPrice) cartUnitPrice.textContent=formatEuro(cartItem.unitPrice);
+  if(cartLineTotal) cartLineTotal.textContent=`${q} × ${formatEuro(cartItem.unitPrice)} = ${formatEuro(line)}`;
+  if(cartTotal) cartTotal.textContent=formatEuro(line);
+  if(cartCount) cartCount.textContent=q===1?'1 Artikel':`${q} Artikel`;
+  cartReady?.classList.add('is-hidden');
+  cartCard.classList.remove('is-hidden');
+  window.lieblingsbildCart={...cartItem,quantity:q,lineTotal:line,currency:'EUR'};
+  try{sessionStorage.setItem('lieblingsbildCart',JSON.stringify({...window.lieblingsbildCart,previewDataUrl:undefined}));}catch(err){}
+}
+function setCartQuantity(value){
+  if(!cartItem) return;
+  cartItem.quantity=clampQuantity(value); selectedQuantity=cartItem.quantity;
+  if(quantityInput) quantityInput.value=String(selectedQuantity);
+  renderCart(); updatePriceDisplays();
+}
+function addCurrentSelectionToCart(){
+  const data=finalSelectionData();
+  if(!data || data.unitPrice===null) return;
+  cartItem={...data,quantity:selectedQuantity,previewDataUrl:finalPreviewDataUrl};
+  renderCart(); finalReady?.classList.remove('is-hidden');
+  window.dispatchEvent(new CustomEvent('lieblingsbild:cart-updated',{detail:{...cartItem,lineTotal:cartItem.unitPrice*cartItem.quantity}}));
+  requestAnimationFrame(()=>cartCard?.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+function removeCartItem(){
+  cartItem=null; window.lieblingsbildCart=null; cartCard?.classList.add('is-hidden'); finalReady?.classList.add('is-hidden');
+  try{sessionStorage.removeItem('lieblingsbildCart');}catch(err){}
+  finalSelectionCard?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function prepareOrderFromCart(){
+  if(!cartItem) return;
+  const payload={...cartItem,quantity:clampQuantity(cartItem.quantity),lineTotal:cartItem.unitPrice*clampQuantity(cartItem.quantity),currency:'EUR'};
+  try{sessionStorage.setItem('lieblingsbildOrderDraft',JSON.stringify({...payload,previewDataUrl:undefined}));}catch(err){}
+  window.dispatchEvent(new CustomEvent('lieblingsbild:order-draft-ready',{detail:payload}));
+  cartReady?.classList.remove('is-hidden');
 }
 
 continueBtn?.addEventListener('click',()=>{
@@ -1222,4 +1372,15 @@ continueBtn?.addEventListener('click',()=>{
 
 editSelectionBtn?.addEventListener('click', returnToSelection);
 editSelectionBtnBottom?.addEventListener('click', returnToSelection);
-finalOrderBtn?.addEventListener('click', completeImageAdvisor);
+qtyMinusBtn?.addEventListener('click',()=>setSelectedQuantity(selectedQuantity-1));
+qtyPlusBtn?.addEventListener('click',()=>setSelectedQuantity(selectedQuantity+1));
+quantityInput?.addEventListener('input',e=>setSelectedQuantity(e.target.value));
+quantityInput?.addEventListener('change',e=>setSelectedQuantity(e.target.value));
+finalOrderBtn?.addEventListener('click', addCurrentSelectionToCart);
+cartQtyMinusBtn?.addEventListener('click',()=>setCartQuantity((cartItem?.quantity||1)-1));
+cartQtyPlusBtn?.addEventListener('click',()=>setCartQuantity((cartItem?.quantity||1)+1));
+cartQuantityInput?.addEventListener('input',e=>setCartQuantity(e.target.value));
+cartQuantityInput?.addEventListener('change',e=>setCartQuantity(e.target.value));
+cartEditBtn?.addEventListener('click',()=>{cartCard?.classList.add('is-hidden');returnToSelection();});
+cartRemoveBtn?.addEventListener('click', removeCartItem);
+cartContinueBtn?.addEventListener('click', prepareOrderFromCart);
