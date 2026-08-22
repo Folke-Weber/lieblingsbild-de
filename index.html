@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Lieblingsbild.de – Bilder, die bleiben.">
   <meta name="twitter:description" content="Hochwertige Lieblingsbilder auf Pearl-Fotopapier oder als 3D-Kristallglas.">
 
-  <link rel="stylesheet" href="styles.css?v=5.0">
+  <link rel="stylesheet" href="styles.css?v=5.1">
 
   <script type="application/ld+json">
   {
@@ -183,7 +183,7 @@
 
 
     <section id="bildberater" class="advisor">
-      <div class="advisor-head"><span class="test-version">Bildberater V5.0</span>
+      <div class="advisor-head"><span class="test-version">Bildberater V5.1</span>
         <p class="eyebrow gold">Dein persönlicher Bildberater</p>
         <h2>Ein Bild. Die passende Größe.</h2>
         <p class="advisor-intro">
@@ -247,7 +247,7 @@
               <p class="eyebrow gold">Dein Ausschnitt-Service</p>
               <h3>Wie soll dein Lieblingsbild wirken?</h3>
               <p>
-                Du entscheidest selbst: Original, Hochformat oder Querformat. Keine Variante wird gesperrt.
+                Du entscheidest selbst: Original, Hochformat, Querformat oder – wenn gewünscht – auch quadratisch. Keine Variante wird gesperrt.
                 Danach kannst du den Ausschnitt frei verschieben und hineinzoomen. Unser Bildberater warnt nur bei Qualitätsverlust
                 und empfiehlt bei Bedarf automatisch eine kleinere Größe.
               </p>
@@ -255,7 +255,17 @@
             <div id="orientationChoices" class="orientation-choices" aria-label="Ausrichtung auswählen"></div>
           </div>
 
-          <div class="crop-workspace">
+          
+          <div class="style-service">
+            <div class="style-copy">
+              <p class="eyebrow gold">Bildstil optional</p>
+              <h3>Wie soll dein Lieblingsbild wirken?</h3>
+              <p>Optional kannst du zwischen <strong>Farbe</strong> und <strong>Schwarz-Weiß</strong> wechseln. Die Vorschau reagiert sofort, ohne dass deine Originaldatei verändert wird.</p>
+            </div>
+            <div id="styleChoices" class="style-choices" aria-label="Bildstil auswählen"></div>
+          </div>
+
+<div class="crop-workspace">
             <div class="crop-preview-wrap">
               <div class="crop-stage" id="cropStage">
                 <canvas id="cropCanvas" class="crop-canvas" aria-label="Ausschnittvorschau des ausgewählten Formats"></canvas>
@@ -396,6 +406,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=5.0"></script>
+  <script src="script.js?v=5.1"></script>
 </body>
 </html>

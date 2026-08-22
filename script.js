@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.0 – Canvas Cropper */
+/* Lieblingsbild.de Bildberater V5.1 – Canvas Cropper + optionale Quadrat-/SW-Wahl */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -25,6 +25,7 @@ const STANDARD_FORMATS = [
 const CM_PER_INCH = 2.54;
 const MIN_PPI_OK = 180;
 const PPI_EXCELLENT = 240;
+const SQUARE_SIZES = [15,18,20,30];
 
 const imageInput = document.getElementById('imageInput');
 const chooseImageBtn = document.getElementById('chooseImageBtn');
@@ -47,6 +48,7 @@ const continueBtn = document.getElementById('continueBtn');
 const zoomRange = document.getElementById('zoomRange');
 const zoomValue = document.getElementById('zoomValue');
 const liveAdvisor = document.getElementById('liveAdvisor');
+const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
 const ctx = cropCanvas.getContext('2d', {alpha:false});
@@ -56,6 +58,7 @@ let currentObjectUrl = null;
 let selectedSize = null;
 let selectedVariant = null;
 let selectedOrientationKind = 'original';
+let selectedStyle = 'color';
 let currentVariants = [];
 let zoom = 1;
 let cropCenterX = 0.5;
@@ -96,6 +99,50 @@ function qualityInfo(ppi){
 
 function labelFormat(f){
   return `${String(f.w).replace('.',',')} × ${String(f.h).replace('.',',')} cm`;
+}
+
+function styleLabel(){
+  return selectedStyle === 'bw' ? 'Schwarz-Weiß' : 'Farbe';
+}
+
+function renderStyleChoices(){
+  if(!styleChoices) return;
+  styleChoices.innerHTML = '';
+
+  const options = [
+    {
+      key:'color',
+      title:'Farbe',
+      meta:'Dein Lieblingsbild wird in seiner natürlichen Farbstimmung gezeigt.',
+      chip:'Standard'
+    },
+    {
+      key:'bw',
+      title:'Schwarz-Weiß',
+      meta:'Zeitlos, ruhig und emotional – ideal für Portraits, Hochzeiten und besondere Erinnerungen.',
+      chip:'Optional'
+    }
+  ];
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `style-option ${selectedStyle === opt.key ? 'selected' : ''}`;
+    btn.innerHTML = `
+      <span>
+        <span class="style-name">${opt.title}</span>
+      </span>
+      <span class="style-meta">${opt.meta}</span>
+      <span class="style-chip">${opt.chip}</span>
+    `;
+    btn.addEventListener('click', () => {
+      selectedStyle = opt.key;
+      renderStyleChoices();
+      drawCrop();
+      updateSummary();
+    });
+    styleChoices.appendChild(btn);
+  });
 }
 
 function fitOrientationVariants(format,imgRatio){
@@ -223,7 +270,7 @@ function orientationVariants(size){
   const long=Math.max(size.w,size.h);
   const sourceLandscape=currentImage.width>=currentImage.height;
 
-  return [
+  const variants = [
     {
       kind:'original',
       label:'Original',
@@ -233,20 +280,45 @@ function orientationVariants(size){
     },
     {kind:'portrait',label:'Hochformat',icon:'portrait',w:short,h:long},
     {kind:'landscape',label:'Querformat',icon:'landscape',w:long,h:short}
-  ].map(v=>({
-    ...v,
-    ratio:v.w/v.h,
-    loss:cropLossForRatio(currentImage.width/currentImage.height,v.w/v.h),
-    basePpi:effectivePpiAfterCrop(currentImage.width,currentImage.height,v.w,v.h)
-  }));
-}
+  ];
 
+  // Optional square choice for a Fachgeschäft-style advisory flow.
+  if(short !== long){
+    const eligibleSquareSides = SQUARE_SIZES.filter(s => s <= long);
+    const squareSide = eligibleSquareSides.length
+      ? eligibleSquareSides.reduce((best, s) => Math.abs(s-short) < Math.abs(best-short) ? s : best, eligibleSquareSides[0])
+      : SQUARE_SIZES[0];
+
+    variants.push({
+      kind:'square',
+      label:'Quadratisch',
+      icon:'square',
+      w:squareSide,
+      h:squareSide
+    });
+  }
+
+  const seen = new Set();
+  return variants
+    .map(v=>({
+      ...v,
+      ratio:v.w/v.h,
+      loss:cropLossForRatio(currentImage.width/currentImage.height,v.w/v.h),
+      basePpi:effectivePpiAfterCrop(currentImage.width,currentImage.height,v.w,v.h)
+    }))
+    .filter(v=>{
+      const key=`${v.kind}:${v.w}x${v.h}`;
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
 function shapeIconClass(icon){
   if(icon==='portrait') return 'shape-portrait';
   if(icon==='landscape') return 'shape-landscape';
+  if(icon==='square') return 'shape-square';
   return 'shape-original';
 }
-
 function initialOrientationStatus(v){
   const q=qualityInfo(v.basePpi);
   const cropPct=Math.round(v.loss*100);
@@ -294,8 +366,10 @@ function selectSizeFormat(size,button){
 
   cropCard.classList.remove('is-hidden');
   renderOrientationChoices(size,'original');
+  renderStyleChoices();
 
   requestAnimationFrame(()=>{
+    renderStyleChoices();
     resizeCanvasForVariant();
     drawCrop();
     updateSummary();
@@ -423,16 +497,18 @@ function drawCrop(){
   ctx.fillRect(0,0,cropCanvas.width,cropCanvas.height);
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
+  ctx.filter = selectedStyle === 'bw' ? 'grayscale(1)' : 'none';
   ctx.drawImage(
     currentImage.element,
     g.sx,g.sy,g.cropW,g.cropH,
     0,0,cropCanvas.width,cropCanvas.height
   );
+  ctx.filter = 'none';
   ctx.restore();
 
   const ppi=currentEffectivePpi();
   cropQuality.textContent=
-    `Vorschau · ${selectedVariant.label} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
+    `Vorschau · ${selectedVariant.label} · ${styleLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
   renderOrientationStatuses();
 }
 
@@ -513,27 +589,32 @@ function updateSummary(){
   const formatCropPct=Math.round(selectedVariant.loss*100);
 
   selectedFormatText.textContent=
+    `Bildstil: ${styleLabel()}. ` +
     `${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+
-    (formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt.':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+
+    (formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+
     `Dein zusätzlicher Zoom wird live mitgerechnet.`;
 
   const alternatives=findSmallerAlternatives();
 
   let text,extra,bad=false;
   if(ppi>=PPI_EXCELLENT){
-    text=`Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)} mit sehr guter Qualität geeignet.`;
+    text=`Dein tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} und sehr guter Qualität geeignet.`;
     extra='Du kannst das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.';
   }else if(ppi>=MIN_PPI_OK){
-    text=`Dein Ausschnitt ist in ${labelFormat(selectedVariant)} noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.`;
+    text=`Dein Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.`;
     extra=alternatives.length
       ? `Für maximale Qualität empfehlen wir ${alternatives.map(labelFormat).join(' oder ')}.`
       : 'Bei weiterem Zoom wäre eine kleinere Größe sinnvoll.';
   }else{
     bad=true;
-    text=`Für ${labelFormat(selectedVariant)} ist genau dieser Ausschnitt mit rund ${Math.round(ppi)} ppi nicht mehr optimal.`;
+    text=`Für ${labelFormat(selectedVariant)} ist genau dieser Ausschnitt mit ${styleLabel()} und rund ${Math.round(ppi)} ppi nicht mehr optimal.`;
     extra=alternatives.length
       ? `Für denselben Bildwunsch empfehlen wir ${alternatives.map(labelFormat).join(' oder ')}.`
       : 'Bitte weniger stark zoomen oder eine kleinere Größe wählen.';
+  }
+
+  if(selectedVariant.kind === 'square'){
+    extra += ' Quadratische Formate wirken besonders ruhig und modern.';
   }
 
   liveAdvisor.innerHTML=`
@@ -541,7 +622,6 @@ function updateSummary(){
     <p class="${bad?'advisor-bad':''}">${text}</p>
     <span class="advisor-alt">${extra}</span>`;
 }
-
 function handleFile(file){
   if(!file) return;
 
@@ -665,6 +745,7 @@ continueBtn?.addEventListener('click',()=>{
   alert(
     `Ausgewählt: ${labelFormat(selectedVariant)}\n`+
     `Ausrichtung: ${selectedVariant.label}\n`+
+    `Bildstil: ${styleLabel()}\n`+
     `Zoom: ${Math.round(zoom*100)} %\n`+
     `Effektive Auflösung des sichtbaren Ausschnitts: ${Math.round(ppi)} ppi\n\n`+
     `Der Bestellabschluss wird im nächsten Schritt angebunden.`
