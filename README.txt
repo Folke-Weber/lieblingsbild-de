@@ -1,29 +1,18 @@
-LIEBLINGSBILD.DE – BILDBERATER V5.5
+LIEBLINGSBILD.DE – BILDBERATER V5.6
 
-NEU:
-- grüne Größenempfehlungen sind jetzt echte Buttons
-- Klick auf z. B. „21 × 15 cm“ wechselt sofort auf dieses Format
-- Ausschnittsposition wird soweit technisch möglich beibehalten
-- Zoom wird beibehalten
-- Drehung / Neigung wird beibehalten
-- Farbe / Schwarz-Weiß wird beibehalten
-- Original / Optimiert wird beibehalten
-- anschließend wird die Qualität sofort neu berechnet
+FEHLER V5.5 GEFUNDEN UND BEHOBEN:
+Beim Einbau der klickbaren grünen Größenempfehlung wurden versehentlich vorhandene Hilfsfunktionen für Bildoptimierung und Drehen/Neigen entfernt. Dadurch brach die Verarbeitung nach der Bildauswahl ab.
 
-WARNLOGIK:
-Rot = Qualitätsproblem.
-Grün = konkrete Lösung.
-Der Kunde kann die grüne Lösung nun direkt anklicken.
+V5.6 basiert wieder auf der funktionierenden V5.4 und ergänzt die klickbaren grünen Empfehlungen ohne bestehende Funktionen zu löschen.
 
-CACHE:
-- styles.css?v=5.5
-- script.js?v=5.5
-- sichtbare Kennung Bildberater V5.5
+PRÜFUNG:
+- JavaScript-Syntax: OK
+- Dateiauswahl öffnet: True
+- Bildanalyse erscheint: True
+- Empfehlungen im Browsertest: 3
+- Browser-JavaScript-Fehler: 0
+- Zusatz-Browsertest grüne Empfehlung: 2 Buttons angezeigt
+- grüner Formatwechsel geprüft: 50 × 30 cm → 30 × 20 cm erfolgreich
 
-Auf GitHub ersetzen:
-- index.html
-- styles.css
-- script.js
-- README.txt
-
+Auf GitHub ersetzen: index.html, styles.css, script.js, README.txt
 assets bleibt unverändert.

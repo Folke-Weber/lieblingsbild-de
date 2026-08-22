@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.5 – klickbare Größenempfehlung */
+/* Lieblingsbild.de Bildberater V5.6 – geprüfte klickbare Größenempfehlung */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -591,203 +591,171 @@ function findSmallerAlternatives(){
   }
   return unique;
 }
-function recommendationToSelectableSize(alt){
-  // Use the recommended physical size exactly as shown to the customer.
-  return {
-    w:alt.w,
-    h:alt.h,
-    type:'pearl',
-    ratio:alt.w/alt.h,
-    loss:cropLossForRatio(currentImage.width/currentImage.height, alt.w/alt.h),
-    ppi:effectivePpiAfterCrop(currentImage.width,currentImage.height,alt.w,alt.h)
-  };
-}
 
+function recommendationToSelectableSize(alt){
+  return {w:alt.w,h:alt.h,type:'pearl',ratio:alt.w/alt.h,loss:cropLossForRatio(currentImage.width/currentImage.height,alt.w/alt.h),ppi:effectivePpiAfterCrop(currentImage.width,currentImage.height,alt.w,alt.h)};
+}
 function applyRecommendedSize(alt){
   if(!alt || !currentImage) return;
-
-  // Preserve the customer's creative decisions.
-  const preserve = {
-    orientation:selectedOrientationKind,
-    style:selectedStyle,
-    optimization:selectedOptimization,
-    quarterTurns,
-    tiltDegrees,
-    zoom,
-    centerX:cropCenterX,
-    centerY:cropCenterY
-  };
-
-  const newSize = recommendationToSelectableSize(alt);
-  selectedSize = newSize;
-
-  // Mark a corresponding size button if present.
-  document.querySelectorAll('.format-option').forEach(el => el.classList.remove('selected'));
-
-  // Do NOT reset style / optimization / rotation.
-  selectedStyle = preserve.style;
-  selectedOptimization = preserve.optimization;
-  quarterTurns = preserve.quarterTurns;
-  tiltDegrees = preserve.tiltDegrees;
-  updateRotationUi();
-  renderStyleChoices();
-  renderOptimizationChoices();
-
-  currentVariants = orientationVariants(newSize);
-  orientationChoices.innerHTML='';
-
-  currentVariants.forEach((v,idx)=>{
-    const btn=document.createElement('button');
-    btn.type='button';
-    btn.className=`orientation-option customer-choice ${idx===0?'recommended':''}`;
-    btn.dataset.kind=v.kind;
-    btn.innerHTML=`
-      <span>
-        <span class="orientation-shape"><span class="shape-icon ${shapeIconClass(v.icon)}"></span></span>
-        <span class="orientation-name">${v.label}</span>
-      </span>
-      <span>
-        <span class="orientation-meta">${labelFormat(v)}</span>
-        <span class="orientation-status">${initialOrientationStatus(v)}</span>
-      </span>`;
-    btn.addEventListener('click',()=>applyVariant(v,btn));
-    orientationChoices.appendChild(btn);
-  });
-
-  let desiredKind = preserve.orientation;
-  if(!currentVariants.some(v=>v.kind===desiredKind)){
-    desiredKind = currentVariants.some(v=>v.kind==='original') ? 'original' : currentVariants[0]?.kind;
-  }
-
-  const chosen=currentVariants.find(v=>v.kind===desiredKind) || currentVariants[0];
-  const chosenBtn=[...orientationChoices.querySelectorAll('.orientation-option')]
-    .find(b=>b.dataset.kind===chosen.kind);
-
-  selectedVariant=chosen;
-  selectedOrientationKind=chosen.kind;
-
-  // Preserve zoom and crop centre where possible.
-  zoom=preserve.zoom;
-  if(zoomRange) zoomRange.value=String(zoom);
-  if(zoomValue) zoomValue.textContent=`${Math.round(zoom*100)} %`;
-  cropCenterX=preserve.centerX;
-  cropCenterY=preserve.centerY;
-
-  document.querySelectorAll('.orientation-option').forEach(el=>el.classList.remove('selected'));
-  if(chosenBtn) chosenBtn.classList.add('selected');
-
-  selectedFormatLabel.textContent=`${labelFormat(chosen)} · ${chosen.label}`;
-  cropTitle.textContent=`${labelFormat(chosen)} – ${chosen.label} prüfen`;
-
-  requestAnimationFrame(()=>{
-    resizeCanvasForVariant();
-    drawCrop();
-    updateSummary();
-  });
-
+  const preserve={orientation:selectedOrientationKind,style:selectedStyle,optimization:selectedOptimization,quarterTurns,tiltDegrees,zoom,centerX:cropCenterX,centerY:cropCenterY};
+  const newSize=recommendationToSelectableSize(alt); selectedSize=newSize;
+  document.querySelectorAll('.format-option').forEach(el=>el.classList.remove('selected'));
+  selectedStyle=preserve.style; selectedOptimization=preserve.optimization; quarterTurns=preserve.quarterTurns; tiltDegrees=preserve.tiltDegrees;
+  updateRotationUi(); renderStyleChoices(); renderOptimizationChoices();
+  currentVariants=orientationVariants(newSize); orientationChoices.innerHTML='';
+  currentVariants.forEach((v,idx)=>{const btn=document.createElement('button');btn.type='button';btn.className=`orientation-option customer-choice ${idx===0?'recommended':''}`;btn.dataset.kind=v.kind;btn.innerHTML=`<span><span class="orientation-shape"><span class="shape-icon ${shapeIconClass(v.icon)}"></span></span><span class="orientation-name">${v.label}</span></span><span><span class="orientation-meta">${labelFormat(v)}</span><span class="orientation-status">${initialOrientationStatus(v)}</span></span>`;btn.addEventListener('click',()=>applyVariant(v,btn));orientationChoices.appendChild(btn);});
+  let desiredKind=preserve.orientation;if(!currentVariants.some(v=>v.kind===desiredKind)){desiredKind=currentVariants.some(v=>v.kind==='original')?'original':currentVariants[0]?.kind;}
+  const chosen=currentVariants.find(v=>v.kind===desiredKind)||currentVariants[0]; if(!chosen) return;
+  const chosenBtn=[...orientationChoices.querySelectorAll('.orientation-option')].find(b=>b.dataset.kind===chosen.kind);
+  selectedVariant=chosen; selectedOrientationKind=chosen.kind; zoom=preserve.zoom;
+  if(zoomRange) zoomRange.value=String(zoom); if(zoomValue) zoomValue.textContent=`${Math.round(zoom*100)} %`;
+  cropCenterX=preserve.centerX; cropCenterY=preserve.centerY;
+  document.querySelectorAll('.orientation-option').forEach(el=>el.classList.remove('selected')); if(chosenBtn) chosenBtn.classList.add('selected');
+  selectedFormatLabel.textContent=`${labelFormat(chosen)} · ${chosen.label}`; cropTitle.textContent=`${labelFormat(chosen)} – ${chosen.label} prüfen`;
+  requestAnimationFrame(()=>{resizeCanvasForVariant();drawCrop();updateSummary();});
   cropCard.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function updateSummary(){
   if(!selectedVariant) return;
-
-  const ppi=currentEffectivePpi();
-  const q=qualityInfo(ppi);
-  const formatCropPct=Math.round(selectedVariant.loss*100);
-
-  selectedFormatText.textContent=
-    `Bildstil: ${styleLabel()} · ${optimizationLabel()} · Ausrichtung ${normalizedRotationLabel()}. ` +
-    `${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+
-    (formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+
-    `Ihr zusätzlicher Zoom wird live mitgerechnet.`;
-
+  const ppi=currentEffectivePpi(); const q=qualityInfo(ppi); const formatCropPct=Math.round(selectedVariant.loss*100);
+  selectedFormatText.textContent=`Bildstil: ${styleLabel()} · ${optimizationLabel()} · Ausrichtung ${normalizedRotationLabel()}. `+`${q.label}e effektive Bildqualität bei etwa ${Math.round(ppi)} ppi. `+(formatCropPct<=1?'Nahezu ohne formatbedingten Beschnitt. ':`Formatbedingter Beschnitt: ca. ${formatCropPct}%. `)+`Ihr zusätzlicher Zoom wird live mitgerechnet.`;
   const alternatives=findSmallerAlternatives();
-
-  if(ppi < MIN_PPI_OK){
-    liveAdvisor.className='live-advisor warning';
-
-    const buttons = alternatives.slice(0,2).map((alt,idx)=>`
-      <button
-        type="button"
-        class="advisor-size-button"
-        data-recommendation-index="${idx}"
-        aria-label="Auf ${labelFormat(alt)} wechseln"
-      >${labelFormat(alt)}</button>
-    `).join('');
-
-    liveAdvisor.innerHTML=`
-      <div class="advisor-warning-title">
-        <span class="advisor-warning-symbol">!</span>
-        <span>Qualitätswarnung</span>
-      </div>
-      <p class="advisor-warning-text">
-        Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit
-        <strong>${styleLabel()}</strong> · <strong>${optimizationLabel()}</strong> und nur noch rund
-        <strong>${Math.round(ppi)} ppi</strong> nicht mehr optimal.
-      </p>
-      ${
-        alternatives.length
-          ? `<div class="advisor-recommendation">
-               <strong>✓ Empfohlen</strong>
-               <span>Mit einer kleineren Größe erhalten Sie wieder eine deutlich bessere Bildqualität.</span>
-               <div class="advisor-recommendation-buttons">${buttons}</div>
-               <span class="advisor-recommendation-hint">Klicken Sie auf Ihre gewünschte Empfehlung – der Bildberater übernimmt das Format sofort.</span>
-             </div>`
-          : `<div class="advisor-recommendation">
-               <strong>✓ Empfehlung</strong>
-               <span>Bitte zoomen Sie weniger stark oder wählen Sie eine kleinere Größe.</span>
-             </div>`
-      }
-    `;
-
-    liveAdvisor.querySelectorAll('.advisor-size-button').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const idx=parseInt(btn.dataset.recommendationIndex || '0',10);
-        const alt=alternatives[idx];
-        if(alt) applyRecommendedSize(alt);
-      });
-    });
-
-    return;
-  }
-
+  const renderButtons=()=>alternatives.slice(0,2).map((alt,idx)=>`<button type="button" class="advisor-size-button" data-recommendation-index="${idx}" aria-label="Auf ${labelFormat(alt)} wechseln">${labelFormat(alt)}</button>`).join('');
+  const bindButtons=()=>liveAdvisor.querySelectorAll('.advisor-size-button').forEach(btn=>btn.addEventListener('click',()=>{const idx=parseInt(btn.dataset.recommendationIndex||'0',10);const alt=alternatives[idx];if(alt) applyRecommendedSize(alt);}));
+  if(ppi<MIN_PPI_OK){liveAdvisor.className='live-advisor warning';liveAdvisor.innerHTML=`<div class="advisor-warning-title"><span class="advisor-warning-symbol">!</span><span>Qualitätswarnung</span></div><p class="advisor-warning-text">Für <strong>${labelFormat(selectedVariant)}</strong> ist genau dieser Ausschnitt mit <strong>${styleLabel()}</strong> · <strong>${optimizationLabel()}</strong> und nur noch rund <strong>${Math.round(ppi)} ppi</strong> nicht mehr optimal.</p>${alternatives.length?`<div class="advisor-recommendation"><strong>✓ Empfohlen</strong><span>Mit einer kleineren Größe erhalten Sie wieder eine deutlich bessere Bildqualität.</span><div class="advisor-recommendation-buttons">${renderButtons()}</div><span class="advisor-recommendation-hint">Klicken Sie auf Ihre gewünschte Empfehlung – der Bildberater übernimmt das Format sofort.</span></div>`:`<div class="advisor-recommendation"><strong>✓ Empfehlung</strong><span>Bitte zoomen Sie weniger stark oder wählen Sie eine kleinere Größe.</span></div>`}`;bindButtons();return;}
   liveAdvisor.className='live-advisor ok';
-
-  if(ppi>=PPI_EXCELLENT){
-    liveAdvisor.innerHTML=`
-      <strong>Live-Bildberater</strong>
-      <p>Ihr tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)}
-      mit ${styleLabel()} · ${optimizationLabel()} und sehr guter Qualität geeignet.</p>
-      <span class="advisor-alt">Sie können das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>
-    `;
-  }else{
-    const buttons = alternatives.slice(0,2).map((alt,idx)=>`
-      <button type="button" class="advisor-size-button" data-recommendation-index="${idx}">
-        ${labelFormat(alt)}
-      </button>
-    `).join('');
-
-    liveAdvisor.innerHTML=`
-      <strong>Live-Bildberater</strong>
-      <p>Ihr Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()}
-      noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.</p>
-      ${
-        alternatives.length
-          ? `<span class="advisor-alt">Für maximale Qualität empfehlen wir eine kleinere Größe.</span>
-             <div class="advisor-recommendation-buttons">${buttons}</div>`
-          : `<span class="advisor-alt">Bei weiterem Zoom wäre eine kleinere Größe sinnvoll.</span>`
-      }
-    `;
-
-    liveAdvisor.querySelectorAll('.advisor-size-button').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const idx=parseInt(btn.dataset.recommendationIndex || '0',10);
-        const alt=alternatives[idx];
-        if(alt) applyRecommendedSize(alt);
-      });
-    });
-  }
+  if(ppi>=PPI_EXCELLENT){liveAdvisor.innerHTML=`<strong>Live-Bildberater</strong><p>Ihr tatsächlich sichtbarer Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()} und sehr guter Qualität geeignet.</p><span class="advisor-alt">Sie können das Bild frei verschieben oder weiter hineinzoomen – der Bildberater rechnet sofort neu.</span>`;}
+  else{liveAdvisor.innerHTML=`<strong>Live-Bildberater</strong><p>Ihr Ausschnitt ist in ${labelFormat(selectedVariant)} mit ${styleLabel()} · ${optimizationLabel()} noch gut, liegt aber nur noch bei rund ${Math.round(ppi)} ppi.</p>${alternatives.length?`<span class="advisor-alt">Für maximale Qualität empfehlen wir eine kleinere Größe.</span><div class="advisor-recommendation-buttons">${renderButtons()}</div>`:`<span class="advisor-alt">Bei weiterem Zoom wäre eine kleinere Größe sinnvoll.</span>`}`;bindButtons();}
 }
+function analyzeImageForEnhancement(img){
+  const sample = document.createElement('canvas');
+  const maxSide = 180;
+  const ratio = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+  sample.width = Math.max(1, Math.round(img.naturalWidth * ratio));
+  sample.height = Math.max(1, Math.round(img.naturalHeight * ratio));
+
+  const sctx = sample.getContext('2d', {willReadFrequently:true});
+  sctx.drawImage(img, 0, 0, sample.width, sample.height);
+
+  const data = sctx.getImageData(0,0,sample.width,sample.height).data;
+  let lumSum = 0;
+  let satSum = 0;
+  let count = 0;
+
+  for(let i=0;i<data.length;i+=16){
+    const r=data[i], g=data[i+1], b=data[i+2];
+    const lum=0.2126*r+0.7152*g+0.0722*b;
+    lumSum += lum;
+
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    satSum += max===0 ? 0 : (max-min)/max;
+    count++;
+  }
+
+  const avgLum = count ? lumSum/count : 128;
+  const avgSat = count ? satSum/count : 0.35;
+
+  let brightness = 1;
+  if(avgLum < 85) brightness = 1.14;
+  else if(avgLum < 110) brightness = 1.09;
+  else if(avgLum < 135) brightness = 1.05;
+  else if(avgLum > 200) brightness = 0.96;
+  else if(avgLum > 180) brightness = 0.98;
+
+  let contrast = avgLum < 100 ? 1.06 : 1.05;
+  let saturation = avgSat < 0.20 ? 1.10 : avgSat < 0.32 ? 1.07 : 1.04;
+
+  return {
+    brightness: Math.max(.94, Math.min(1.15, brightness)),
+    contrast: Math.max(1, Math.min(1.08, contrast)),
+    saturation: Math.max(1, Math.min(1.10, saturation))
+  };
+}
+
+function enhancementFilter(){
+  const p = enhancementProfile;
+  const gray = selectedStyle === 'bw' ? ' grayscale(1)' : '';
+  if(selectedOptimization !== 'optimized'){
+    return `${gray || 'none'}`.trim();
+  }
+  return `brightness(${p.brightness}) contrast(${p.contrast}) saturate(${p.saturation})${gray}`;
+}
+
+function optimizationLabel(){
+  return selectedOptimization === 'optimized' ? 'Optimiert' : 'Original';
+}
+
+function totalRotationDegrees(){
+  return quarterTurns * 90 + tiltDegrees;
+}
+
+function normalizedRotationLabel(){
+  let deg = totalRotationDegrees() % 360;
+  if(deg > 180) deg -= 360;
+  if(deg <= -180) deg += 360;
+  const rounded = Math.round(deg * 10) / 10;
+  const sign = rounded > 0 ? '+' : '';
+  return `${sign}${String(rounded).replace('.', ',')}°`;
+}
+
+function updateRotationUi(){
+  if(tiltValue){
+    const rounded = Math.round(tiltDegrees * 10) / 10;
+    const sign = rounded > 0 ? '+' : '';
+    tiltValue.textContent = `${sign}${String(rounded).replace('.', ',')}°`;
+  }
+  if(tiltRange) tiltRange.value = String(tiltDegrees);
+}
+
+function rotatedCropMetrics(imgW,imgH,cmW,cmH,angleDeg,zoomFactor=1){
+  const ratio = cmW / cmH;
+  const rad = angleDeg * Math.PI / 180;
+  const c = Math.abs(Math.cos(rad));
+  const s = Math.abs(Math.sin(rad));
+
+  // Maximal axis-aligned output crop that still has full image coverage after rotation.
+  const denomW = c + s / ratio;
+  const denomH = s + c / ratio;
+
+  const maxCropW = Math.min(
+    imgW / Math.max(1e-9, denomW),
+    imgH / Math.max(1e-9, denomH)
+  );
+  const maxCropH = maxCropW / ratio;
+
+  const cropW = maxCropW / zoomFactor;
+  const cropH = maxCropH / zoomFactor;
+
+  const boundW = cropW * c + cropH * s;
+  const boundH = cropW * s + cropH * c;
+
+  const ppi = Math.min(
+    cropW / (cmW / CM_PER_INCH),
+    cropH / (cmH / CM_PER_INCH)
+  );
+
+  return {cropW,cropH,boundW,boundH,ppi,rad,c,s};
+}
+
+function renderOptimizationChoices(){
+  if(!optimizeChoices) return;
+
+  optimizeChoices.querySelectorAll('.optimize-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.optimize === selectedOptimization);
+  });
+}
+
+optimizeChoices?.addEventListener('click', e => {
+  const btn = e.target.closest('.optimize-option');
+  if(!btn) return;
+
+  selectedOptimization = btn.dataset.optimize || 'original';
+  renderOptimizationChoices();
+  drawCrop();
+  updateSummary();
+});
+
 function handleFile(file){
   if(!file) return;
 
