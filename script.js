@@ -1,4 +1,4 @@
-/* Lieblingsbild.de Bildberater V5.6 – geprüfte klickbare Größenempfehlung */
+/* Lieblingsbild.de Bildberater V5.7 – Live-Werkzeugleiste + 180° */
 
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -54,6 +54,26 @@ const rotateRightBtn = document.getElementById('rotateRightBtn');
 const rotationResetBtn = document.getElementById('rotationResetBtn');
 const tiltRange = document.getElementById('tiltRange');
 const tiltValue = document.getElementById('tiltValue');
+const rotate180Btn = document.getElementById('rotate180Btn');
+
+const miniFormat = document.getElementById('miniFormat');
+const miniOrientation = document.getElementById('miniOrientation');
+const miniStyle = document.getElementById('miniStyle');
+const miniOptimization = document.getElementById('miniOptimization');
+const miniQuality = document.getElementById('miniQuality');
+
+const miniRotateLeftBtn = document.getElementById('miniRotateLeftBtn');
+const miniRotate180Btn = document.getElementById('miniRotate180Btn');
+const miniRotateRightBtn = document.getElementById('miniRotateRightBtn');
+const miniRotationResetBtn = document.getElementById('miniRotationResetBtn');
+const miniColorBtn = document.getElementById('miniColorBtn');
+const miniBwBtn = document.getElementById('miniBwBtn');
+const miniOriginalBtn = document.getElementById('miniOriginalBtn');
+const miniOptimizedBtn = document.getElementById('miniOptimizedBtn');
+const miniTiltRange = document.getElementById('miniTiltRange');
+const miniTiltValue = document.getElementById('miniTiltValue');
+const miniZoomRange = document.getElementById('miniZoomRange');
+const miniZoomValue = document.getElementById('miniZoomValue');
 const styleChoices = document.getElementById('styleChoices');
 const cropCanvas = document.getElementById('cropCanvas');
 const cropStage = document.getElementById('cropStage');
@@ -517,6 +537,7 @@ function drawCrop(){
     `${normalizedRotationLabel()} · ${Math.round(ppi)} effektive ppi · Zoom ${Math.round(zoom*100)} %`;
 
   renderOrientationStatuses();
+  updateMiniToolbar();
 }
 function renderOrientationStatuses(){
   currentVariants.forEach(v=>{
@@ -706,6 +727,38 @@ function updateRotationUi(){
     tiltValue.textContent = `${sign}${String(rounded).replace('.', ',')}°`;
   }
   if(tiltRange) tiltRange.value = String(tiltDegrees);
+  if(miniTiltRange) miniTiltRange.value = String(tiltDegrees);
+  if(miniTiltValue){
+    const rounded = Math.round(tiltDegrees * 10) / 10;
+    const sign = rounded > 0 ? '+' : '';
+    miniTiltValue.textContent = `${sign}${String(rounded).replace('.', ',')}°`;
+  }
+}
+
+function updateMiniToolbar(){
+  if(!selectedVariant) return;
+
+  const ppi = currentEffectivePpi();
+  const q = qualityInfo(ppi);
+  const tiltRounded = Math.round(tiltDegrees * 10) / 10;
+  const tiltSign = tiltRounded > 0 ? '+' : '';
+  const tiltText = `${tiltSign}${String(tiltRounded).replace('.', ',')}°`;
+
+  if(miniFormat) miniFormat.textContent = labelFormat(selectedVariant);
+  if(miniOrientation) miniOrientation.textContent = selectedVariant.label;
+  if(miniStyle) miniStyle.textContent = styleLabel();
+  if(miniOptimization) miniOptimization.textContent = optimizationLabel();
+  if(miniQuality) miniQuality.textContent = `${Math.round(ppi)} ppi · ${q.label}`;
+
+  if(miniTiltRange) miniTiltRange.value = String(tiltDegrees);
+  if(miniTiltValue) miniTiltValue.textContent = tiltText;
+  if(miniZoomRange) miniZoomRange.value = String(zoom);
+  if(miniZoomValue) miniZoomValue.textContent = `${Math.round(zoom*100)} %`;
+
+  miniColorBtn?.classList.toggle('active', selectedStyle === 'color');
+  miniBwBtn?.classList.toggle('active', selectedStyle === 'bw');
+  miniOriginalBtn?.classList.toggle('active', selectedOptimization === 'original');
+  miniOptimizedBtn?.classList.toggle('active', selectedOptimization === 'optimized');
 }
 
 function rotatedCropMetrics(imgW,imgH,cmW,cmH,angleDeg,zoomFactor=1){
@@ -825,6 +878,8 @@ allSizesBtn?.addEventListener('click',()=>{
 zoomRange?.addEventListener('input',e=>{
   zoom=parseFloat(e.target.value||'1');
   if(zoomValue) zoomValue.textContent=`${Math.round(zoom*100)} %`;
+  if(miniZoomRange) miniZoomRange.value=String(zoom);
+  if(miniZoomValue) miniZoomValue.textContent=`${Math.round(zoom*100)} %`;
   drawCrop();
   updateSummary();
 });
@@ -895,6 +950,14 @@ rotateRightBtn?.addEventListener('click',()=>{
   updateSummary();
 });
 
+rotate180Btn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+2)%4;
+  cropCenterX=.5;
+  cropCenterY=.5;
+  drawCrop();
+  updateSummary();
+});
+
 rotationResetBtn?.addEventListener('click',()=>{
   quarterTurns=0;
   tiltDegrees=0;
@@ -910,6 +973,71 @@ tiltRange?.addEventListener('input',e=>{
   updateRotationUi();
   drawCrop();
   updateSummary();
+});
+
+
+
+miniRotateLeftBtn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+3)%4;
+  cropCenterX=.5; cropCenterY=.5;
+  drawCrop(); updateSummary();
+});
+
+miniRotate180Btn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+2)%4;
+  cropCenterX=.5; cropCenterY=.5;
+  drawCrop(); updateSummary();
+});
+
+miniRotateRightBtn?.addEventListener('click',()=>{
+  quarterTurns=(quarterTurns+1)%4;
+  cropCenterX=.5; cropCenterY=.5;
+  drawCrop(); updateSummary();
+});
+
+miniRotationResetBtn?.addEventListener('click',()=>{
+  quarterTurns=0;
+  tiltDegrees=0;
+  cropCenterX=.5; cropCenterY=.5;
+  updateRotationUi();
+  drawCrop(); updateSummary();
+});
+
+miniColorBtn?.addEventListener('click',()=>{
+  selectedStyle='color';
+  renderStyleChoices();
+  drawCrop(); updateSummary();
+});
+
+miniBwBtn?.addEventListener('click',()=>{
+  selectedStyle='bw';
+  renderStyleChoices();
+  drawCrop(); updateSummary();
+});
+
+miniOriginalBtn?.addEventListener('click',()=>{
+  selectedOptimization='original';
+  renderOptimizationChoices();
+  drawCrop(); updateSummary();
+});
+
+miniOptimizedBtn?.addEventListener('click',()=>{
+  selectedOptimization='optimized';
+  renderOptimizationChoices();
+  drawCrop(); updateSummary();
+});
+
+miniTiltRange?.addEventListener('input',e=>{
+  tiltDegrees=parseFloat(e.target.value||'0');
+  updateRotationUi();
+  drawCrop(); updateSummary();
+});
+
+miniZoomRange?.addEventListener('input',e=>{
+  zoom=parseFloat(e.target.value||'1');
+  if(zoomRange) zoomRange.value=String(zoom);
+  if(zoomValue) zoomValue.textContent=`${Math.round(zoom*100)} %`;
+  drawCrop(); updateSummary();
 });
 
 

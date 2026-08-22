@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Lieblingsbild.de – Bilder, die bleiben.">
   <meta name="twitter:description" content="Hochwertige Lieblingsbilder auf Pearl-Fotopapier oder als 3D-Kristallglas.">
 
-  <link rel="stylesheet" href="styles.css?v=5.6">
+  <link rel="stylesheet" href="styles.css?v=5.7">
 
   <script type="application/ld+json">
   {
@@ -183,7 +183,7 @@
 
 
     <section id="bildberater" class="advisor">
-      <div class="advisor-head"><span class="test-version">Bildberater V5.6</span>
+      <div class="advisor-head"><span class="test-version">Bildberater V5.7</span>
         <p class="eyebrow gold">Ihr persönlicher Bildberater</p>
         <h2>Ein Bild. Die passende Größe.</h2>
         <p class="advisor-intro">
@@ -299,8 +299,9 @@
             </div>
 
             <div class="rotation-controls">
-              <div class="rotation-buttons" aria-label="Bild drehen">
+              <div class="rotation-buttons rotation-buttons-four" aria-label="Bild drehen">
                 <button type="button" class="rotation-button" id="rotateLeftBtn">↺ 90° links</button>
+                <button type="button" class="rotation-button" id="rotate180Btn">⟲ 180°</button>
                 <button type="button" class="rotation-button" id="rotationResetBtn">0° zurücksetzen</button>
                 <button type="button" class="rotation-button" id="rotateRightBtn">90° rechts ↻</button>
               </div>
@@ -320,6 +321,53 @@
             <div class="crop-preview-wrap">
               <div class="crop-stage" id="cropStage">
                 <canvas id="cropCanvas" class="crop-canvas" aria-label="Ausschnittvorschau des ausgewählten Formats"></canvas>
+              </div>
+
+              <div class="live-tools" id="liveTools" aria-label="Live-Werkzeugleiste">
+                <div class="live-tools-status">
+                  <span class="live-status-chip"><small>Format</small><strong id="miniFormat">–</strong></span>
+                  <span class="live-status-chip"><small>Ausrichtung</small><strong id="miniOrientation">–</strong></span>
+                  <span class="live-status-chip"><small>Bildstil</small><strong id="miniStyle">–</strong></span>
+                  <span class="live-status-chip"><small>Optimierung</small><strong id="miniOptimization">–</strong></span>
+                  <span class="live-status-chip"><small>Qualität</small><strong id="miniQuality">–</strong></span>
+                </div>
+
+                <div class="live-tools-actions">
+                  <div class="live-action-group" aria-label="Drehen">
+                    <button type="button" class="mini-tool-button" id="miniRotateLeftBtn" title="90° nach links drehen">↺ 90°</button>
+                    <button type="button" class="mini-tool-button" id="miniRotate180Btn" title="180° drehen">⟲ 180°</button>
+                    <button type="button" class="mini-tool-button" id="miniRotateRightBtn" title="90° nach rechts drehen">90° ↻</button>
+                    <button type="button" class="mini-tool-button" id="miniRotationResetBtn" title="Drehung zurücksetzen">0°</button>
+                  </div>
+
+                  <div class="live-action-group" aria-label="Bildstil">
+                    <button type="button" class="mini-tool-button" id="miniColorBtn">Farbe</button>
+                    <button type="button" class="mini-tool-button" id="miniBwBtn">S/W</button>
+                  </div>
+
+                  <div class="live-action-group" aria-label="Bildoptimierung">
+                    <button type="button" class="mini-tool-button" id="miniOriginalBtn">Original</button>
+                    <button type="button" class="mini-tool-button" id="miniOptimizedBtn">Optimiert</button>
+                  </div>
+                </div>
+
+                <div class="live-tools-sliders">
+                  <div class="mini-slider-block">
+                    <div class="mini-slider-head">
+                      <label for="miniTiltRange">Neigung</label>
+                      <strong id="miniTiltValue">0°</strong>
+                    </div>
+                    <input id="miniTiltRange" class="mini-range" type="range" min="-20" max="20" step="0.5" value="0">
+                  </div>
+
+                  <div class="mini-slider-block">
+                    <div class="mini-slider-head">
+                      <label for="miniZoomRange">Zoom</label>
+                      <strong id="miniZoomValue">100 %</strong>
+                    </div>
+                    <input id="miniZoomRange" class="mini-range" type="range" min="1" max="4" step="0.01" value="1">
+                  </div>
+                </div>
               </div>
               <div class="crop-controls">
                 <div class="crop-controls-head">
@@ -457,6 +505,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=5.6"></script>
+  <script src="script.js?v=5.7"></script>
 </body>
 </html>
